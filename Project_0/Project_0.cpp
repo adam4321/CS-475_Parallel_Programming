@@ -1,14 +1,14 @@
 /******************************************************************************
-**
-**
-**
+**  Author:       Adam Wright
+**  Date:         3-20-2020
+**  Description:  Program #0 for OSU cs-475
 ******************************************************************************/
 
 #include <omp.h>
 #include <stdio.h>
 #include <math.h>
 
-#define NUMT	        1   // Thread count
+#define NUMT	        4   // Thread count
 #define SIZE       	16384	// Array size
 #define NUMTRIES      100	// Number of iterations
 
