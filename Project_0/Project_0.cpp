@@ -1,7 +1,10 @@
 /******************************************************************************
 **  Author:       Adam Wright
-**  Date:         3-20-2020
-**  Description:  Program #0 for OSU cs-475
+**  Email:        wrighada@oregonstate.edu
+**  Date:         3-29-2020
+**  Description:  Program 0 for OSU cs-475 Parallel Programming. The program is
+**                a test of the performance of array multiplication in a for
+**                loop with 1 thread vs. 4 threads
 ******************************************************************************/
 
 #include <omp.h>
