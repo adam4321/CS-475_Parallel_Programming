@@ -4,7 +4,7 @@
 **  Date:         3-29-2020
 **  Description:  Program 0 for OSU cs-475 Parallel Programming. The program is
 **                a test of the performance of array multiplication in a for
-**                loop with 1 thread vs. 4 threads
+**                loop with 1 thread vs. 4 threads. It uses OpenMP.
 ******************************************************************************/
 
 #include <omp.h>
@@ -56,8 +56,8 @@ int main()
 
     printf("Peak Performance = %8.2lf MegaMults/Sec\n", maxMegaMults);
 
-    /* NOTE: %lf stands for "long float", which is how printf prints a "double"
-            %d stands for "decimal integer", not "double" */
+    // NOTE: %lf stands for "long float", which is how printf prints a "double"
+    //        %d stands for "decimal integer", not "double"
 
     return 0;
 }
