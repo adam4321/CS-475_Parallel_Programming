@@ -115,7 +115,7 @@ int main( int argc, char *argv[ ] )
 			// get the unitized normal vector at the point of intersection:
 			float nx = xcir - xc;
 			float ny = ycir - yc;
-			float n = sqrt( nx*nx + ny*ny );
+			n = sqrt( nx*nx + ny*ny );
 			nx /= n;	// unit vector
 			ny /= n;	// unit vector
 
