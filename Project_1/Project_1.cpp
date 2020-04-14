@@ -150,9 +150,12 @@ int main(int argc, char* argv[])
 		double time1 = omp_get_wtime();
 		double megaTrialsPerSecond = (double)NUMTRIALS / (time1 - time0) / 1000000.;
 
-		if (megaTrialsPerSecond > maxPerformance)
-			maxPerformance = megaTrialsPerSecond;
-		currentProb = (float)numHits / (float)NUMTRIALS;
+        if (isfinite(megaTrialsPerSecond))
+        {  
+            if (megaTrialsPerSecond > maxPerformance)
+                maxPerformance = megaTrialsPerSecond;
+            currentProb = (float)numHits / (float)NUMTRIALS;
+        }
 	}
 
 	// Print out: 
@@ -162,7 +165,7 @@ int main(int argc, char* argv[])
 	// (4) the MegaTrialsPerSecond. 
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
-	printf("%2.0d\t%d\t%15.6lf\t%13.2f\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
+	printf("%2.0d\t%d\t%15.6lf\t%13f\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
 }
 
 // Helper Functions:
