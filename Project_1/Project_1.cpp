@@ -1,9 +1,12 @@
 /******************************************************************************
-**  Author:       Adam Wright
+**  Authors:      Professor Mike Bailey, Adam Wright
 **  Email:        wrighada@oregonstate.edu
 **  Date:         4-6-2020
 **  Description:  Program 1 for OSU cs-475 Parallel Programming. The program
-**                uses OpenMP and is a test of
+**                uses OpenMP and is a test of the performance of a Monte Carlo
+**                simulation where the number of operations per second is
+**                compared against the thread count and the number of trials
+**                in the simulation. 
 ******************************************************************************/
 
 #include <stdio.h>
@@ -41,6 +44,7 @@ const float RMAX = 2.0;
 float Ranf(float, float);
 int Ranf(int, int);
 void TimeOfDaySeed();
+
 
 // main program:
 int main(int argc, char* argv[])
@@ -167,7 +171,7 @@ int main(int argc, char* argv[])
 	// (4) the MegaTrialsPerSecond. 
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
-	printf("%2.0d\t%d\t%15.3lf\t%13.2lf\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
+	printf("%.2f\t", maxPerformance);
 }
 
 // Helper Functions:
