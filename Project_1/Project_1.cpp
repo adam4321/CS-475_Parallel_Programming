@@ -154,8 +154,10 @@ int main(int argc, char* argv[])
         {  
             if (megaTrialsPerSecond > maxPerformance)
                 maxPerformance = megaTrialsPerSecond;
-            currentProb = (float)numHits / (float)NUMTRIALS;
         }
+
+        // Calculate hit probability
+        currentProb = (float)numHits / (float)NUMTRIALS;
 	}
 
 	// Print out: 
@@ -165,7 +167,7 @@ int main(int argc, char* argv[])
 	// (4) the MegaTrialsPerSecond. 
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
-	printf("%2.0d\t%d\t%15.3lf\t%13.1lf\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
+	printf("%2.0d\t%d\t%15.3lf\t%13.2lf\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
 }
 
 // Helper Functions:

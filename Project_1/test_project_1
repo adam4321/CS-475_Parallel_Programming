@@ -26,7 +26,7 @@ do
     NUMT=$t
 
     # Iterate through the number of trials
-    for s in 10000 50000 100000 1000000
+    for s in 1000 10000 50000 100000 500000 1000000
     do
         # Set the number of trials
         NUMTRIALS=$s
