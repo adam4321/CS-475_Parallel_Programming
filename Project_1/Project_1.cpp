@@ -28,7 +28,7 @@
 #endif
 
 // define PI
-const float M_PI = 3.14;
+const float _PI = 3.14;
 
 // ranges for the random numbers:
 const float XCMIN = -1.0;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 		return 1;
 	#endif
 
-	float tn = tan((M_PI / 180.) * 30.);
+	float tn = tan((_PI / 180.) * 30.);
 	TimeOfDaySeed();		// seed the random number generator
 
 	omp_set_num_threads(NUMT);	// set the number of threads to use in the for-loop:`
@@ -163,10 +163,7 @@ int main(int argc, char* argv[])
 	// (4) the MegaTrialsPerSecond. 
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
-	printf("Num Threads = %10d\n", NUMT);
-	printf("Num Trials = %17.2d\n", NUMTRIALS);
-	printf("Current Probability = %9.6lf\n", currentProb);
-	printf("Peak Performance = %9.2lf MegaTrials/Sec\n", maxPerformance);
+	printf("%2.0d\t%d\t%15.6lf\t%13.2lf\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
 }
 
 // Helper Functions:

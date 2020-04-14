@@ -1,0 +1,34 @@
+#!/bin/bash
+
+###############################################################################
+##  Author:       Adam Wright
+##  Date:         4/13/2020
+##  Course:       OSU cs-475
+##  Project:      Project 1
+##  Description:  Script to compile and run project 1 with GCC while using a
+##                range of values for the #defines NUMT, NUMTRIALS.
+###############################################################################
+
+CPP_FILE="Project_1.cpp"
+OUTPUT_FILE="Project_1"
+
+# Print the data column titles to stdout
+printf "\nNum T | Num Trials | currentProb | maxPerformance\n\n"
+
+# Iterate through the number of threads
+for t in 1 2 3 4 5 6
+do
+    # Set the number of threads
+    NUMT=$t
+
+    # Iterate through the number of trials
+    for s in 10 100 1000 10000 100000 1000000
+    do
+        # Set the number of trials
+        NUMTRIALS=$s
+
+        # Compile and run with the currently set values
+        g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $OUTPUT_FILE -lm -fopenmp
+        ./$OUTPUT_FILE
+    done
+done
