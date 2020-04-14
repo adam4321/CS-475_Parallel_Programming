@@ -143,13 +143,13 @@ int main(int argc, char* argv[])
 
 			// Otherwise, this beam hit the infinite plate. 
 			// (Case D) Increment the number of hits and continue on to the next trial in the for-loop.
-
 			numHits++;
 		}
 
 		double time1 = omp_get_wtime();
 		double megaTrialsPerSecond = (double)NUMTRIALS / (time1 - time0) / 1000000.;
 
+        // Prevent a divide by 0 infinite result from poluting the data
         if (isfinite(megaTrialsPerSecond))
         {  
             if (megaTrialsPerSecond > maxPerformance)
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 	// (4) the MegaTrialsPerSecond. 
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
-	printf("%2.0d\t%d\t%15.6lf\t%13f\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
+	printf("%2.0d\t%d\t%15.3lf\t%13.1lf\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
 }
 
 // Helper Functions:
