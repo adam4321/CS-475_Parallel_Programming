@@ -7,10 +7,12 @@
 ******************************************************************************/
 
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
 #include <time.h>
 #include <omp.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 // setting the number of threads:
 #ifndef NUMT
@@ -26,9 +28,6 @@
 #ifndef NUMTRIES
 #define NUMTRIES	10
 #endif
-
-// define PI
-const float _PI = 3.14;
 
 // ranges for the random numbers:
 const float XCMIN = -1.0;
@@ -51,7 +50,7 @@ int main(int argc, char* argv[])
 		return 1;
 	#endif
 
-	float tn = tan((_PI / 180.) * 30.);
+	float tn = tan((M_PI / 180.) * 30.);
 	TimeOfDaySeed();		// seed the random number generator
 
 	omp_set_num_threads(NUMT);	// set the number of threads to use in the for-loop:`
@@ -163,7 +162,7 @@ int main(int argc, char* argv[])
 	// (4) the MegaTrialsPerSecond. 
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
-	printf("%2.0d\t%d\t%15.6lf\t%13.2lf\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
+	printf("%2.0d\t%d\t%15.6lf\t%13.2f\n", NUMT, NUMTRIALS, currentProb, maxPerformance);
 }
 
 // Helper Functions:

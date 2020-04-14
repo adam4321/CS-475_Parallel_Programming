@@ -10,10 +10,14 @@
 ###############################################################################
 
 CPP_FILE="Project_1.cpp"
-OUTPUT_FILE="Project_1"
+EXECUTABLE="Project_1"
+OUTPUT_FILE="Project_1_Output.txt"
 
-# Print the data column titles to stdout
-printf "\nNum T | Num Trials | currentProb | maxPerformance\n\n"
+# Clear the test file
+> $OUTPUT_FILE
+
+# Message to user while results are gathered
+printf "\nGathering the results...\n"
 
 # Iterate through the number of threads
 for t in 1 2 3 4 5 6
@@ -22,13 +26,19 @@ do
     NUMT=$t
 
     # Iterate through the number of trials
-    for s in 10 100 1000 10000 100000 1000000
+    for s in 10000 50000 100000 1000000
     do
         # Set the number of trials
         NUMTRIALS=$s
 
-        # Compile and run with the currently set values
-        g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $OUTPUT_FILE -lm -fopenmp
-        ./$OUTPUT_FILE
+        # Compile and run with the currently set values and record the results
+        g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $EXECUTABLE -lm -fopenmp
+        ./$EXECUTABLE >> $OUTPUT_FILE
     done
 done
+
+# Print the data column titles to stdout
+printf "\nNum T | Num Trials | currentProb | maxPerformance\n\n"
+
+# Print the output file contents the the terminal
+cat $OUTPUT_FILE
