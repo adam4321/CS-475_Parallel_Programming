@@ -50,8 +50,14 @@ int main()
 
         double time1 = omp_get_wtime();
         double megaMults = (double)SIZE / (time1 - time0) / 1000000.;
-        if (megaMults > maxMegaMults)
+
+        // Prevent infinite values from entering data
+        if (isfinite(megaMults))
+        {
+            if (megaMults > maxMegaMults)
             maxMegaMults = megaMults;
+        }
+        
     }
 
     printf("Peak Performance = %8.2lf MegaMults/Sec\n", maxMegaMults);

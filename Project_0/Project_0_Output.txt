@@ -1,0 +1,57 @@
+	1000	10000	50000	100000	500000	1000000
+1	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+2	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+3	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+4	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+5	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+6	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+7	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+
+8	Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+Peak Performance =     1.#J MegaMults/Sec
+

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+###############################################################################
+##  Author:       Adam Wright
+##  Date:         3/29/2020
+##  Course:       OSU cs-475
+##  Project:      Project 0
+##  Description:  Script to compile and run project 0 with GCC while using a
+##                range of values for the #defines NUMT, NUMTRIALS.
+###############################################################################
+
+CPP_FILE="Project_0.cpp"
+EXECUTABLE="Project_0"
+
+# Message to user while results are gathered
+printf "\nGathering the results...\n"
+
+# Iterate through the number of threads
+for t in 1 2 3 4 5 6 7 8
+do
+    # Set the number of threads
+    NUMT=$t
+
+    # Enter the thread count into the start of each row of the file
+    printf "$NUMT\t" >> $OUTPUT_FILE
+
+    # Iterate through the number of trials
+    for s in 1000 10000 50000 100000 500000 1000000
+    do
+        # Set the number of trials
+        NUMTRIALS=$s
+
+        # Compile and run with the currently set values and record the results
+        g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
+        ./$EXECUTABLE >> $OUTPUT_FILE
+    done
+done
+
+# Print a description of the axes to the terminal
+printf "\nNum Trials (X) vs Thread count (Y)\n\n"
+
+# Print the output file contents to the terminal
+cat $OUTPUT_FILE
