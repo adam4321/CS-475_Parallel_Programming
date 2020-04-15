@@ -1,57 +1,48 @@
-	1000	10000	50000	100000	500000	1000000
-1	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
+Using 1 threads
+Array size: 1   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 1000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 10000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 50000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100000   	Peak Performance =    16.39 MegaMults/Sec
 
-2	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
+Using 2 threads
+Array size: 1   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 1000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 10000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 50000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100000   	Peak Performance =    16.39 MegaMults/Sec
 
-3	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
+Using 3 threads
+Array size: 1   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 1000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 10000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 50000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100000   	Peak Performance =    16.39 MegaMults/Sec
 
-4	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
+Using 4 threads
+Array size: 1   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 1000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 10000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 50000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100000   	Peak Performance =    16.39 MegaMults/Sec
 
-5	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
+Using 5 threads
+Array size: 1   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 1000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 10000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 50000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100000   	Peak Performance =    16.39 MegaMults/Sec
 
-6	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-
-7	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-
-8	Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
-Peak Performance =     1.#J MegaMults/Sec
+Using 6 threads
+Array size: 1   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 1000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 10000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 50000   	Peak Performance =    16.39 MegaMults/Sec
+Array size: 100000   	Peak Performance =    16.39 MegaMults/Sec
 

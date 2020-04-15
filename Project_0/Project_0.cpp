@@ -11,9 +11,18 @@
 #include <stdio.h>
 #include <math.h>
 
-#define NUMT	        4   // Thread count
+// setting the number of threads:
+#ifndef NUMT
+#define NUMT		1
+#endif
+
+#ifndef SIZE
 #define SIZE       	16384	// Array size
+#endif
+
+#ifndef NUMTRIES
 #define NUMTRIES      100	// Number of iterations
+#endif
 
 float A[SIZE];
 float B[SIZE];
@@ -33,8 +42,8 @@ int main()
         B[i] = 2.;
     }
 
+    // Create the thread pool
     omp_set_num_threads(NUMT);
-    fprintf(stderr, "Using %d threads\n", NUMT);
 
     double maxMegaMults = 0.;
 

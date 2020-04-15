@@ -11,33 +11,34 @@
 
 CPP_FILE="Project_0.cpp"
 EXECUTABLE="Project_0"
+OUTPUT_FILE="Project_0_Output.txt"
+
+# Clear the output file
+> $OUTPUT_FILE
 
 # Message to user while results are gathered
 printf "\nGathering the results...\n"
 
 # Iterate through the number of threads
-for t in 1 2 3 4 5 6 7 8
+for t in 1 2 3 4 5 6
 do
     # Set the number of threads
     NUMT=$t
+    printf "Using %d threads\n" $t >> $OUTPUT_FILE
 
-    # Enter the thread count into the start of each row of the file
-    printf "$NUMT\t" >> $OUTPUT_FILE
-
-    # Iterate through the number of trials
-    for s in 1000 10000 50000 100000 500000 1000000
+    # Iterate through the array sizes
+    for s in 1 100 1000 10000 50000 100000
     do
         # Set the number of trials
-        NUMTRIALS=$s
+        SIZE=$s
+        printf "Array size: %d   \t" $s >> $OUTPUT_FILE
 
         # Compile and run with the currently set values and record the results
         g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
         ./$EXECUTABLE >> $OUTPUT_FILE
     done
+    echo >> $OUTPUT_FILE
 done
-
-# Print a description of the axes to the terminal
-printf "\nNum Trials (X) vs Thread count (Y)\n\n"
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE
