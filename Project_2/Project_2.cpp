@@ -3,7 +3,8 @@
 **  Email:        wrighada@oregonstate.edu
 **  Date:         4-16-2020
 **  Description:  Program 2 for OSU cs-475 Parallel Programming. The program
-**                uses OpenMP and is a test of the performance of
+**                uses OpenMP and is a test of the performance of the number
+**                of mega-heights per second vs the number of threads used.
 ******************************************************************************/
 
 #include <stdio.h>
@@ -52,9 +53,9 @@ int main(int argc, char* argv[])
     // Set the number of threads to use in the for-loop
     omp_set_num_threads(NUMT);
 
-    // Get ready to record the maximum performance
-    float maxPerformance = 0.;      // Must be declared outside the NUMTRIES loop
-    double volume;              // must be declared outside the NUMTRIES loop
+    // Variables to record the maximum performance and volume of the shape
+    float maxPerformance = 0.;
+    double volume;
 
     // The area of a single full-sized tile:
     float fullTileArea = (((XMAX - XMIN) / (float)(NUMNODES - 1)) *
@@ -117,6 +118,10 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+// Function which calculates the height of the shape at a local of the plane
+// that it is on. It takes two integers which represent the x and y coords
+// of the point passed in. The return value will need to be multiplied by
+// two to account for the height on the other side of the axis.
 
 float Height(int iu, int iv)	// iu,iv = 0 .. NUMNODES-1
 {
