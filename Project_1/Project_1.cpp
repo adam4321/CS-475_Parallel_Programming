@@ -172,6 +172,8 @@ int main(int argc, char* argv[])
 	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
 
 	printf("%.2f\t", maxPerformance);
+
+    return 0;
 }
 
 // Helper Functions:
