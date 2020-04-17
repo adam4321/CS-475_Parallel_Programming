@@ -30,7 +30,7 @@
 #endif
 
 // Define the exponent of the n-sphere
-#define N 4
+#define N       4
 
 // Define the dimensions of the superquadratic
 #define XMIN     -1.
@@ -44,21 +44,21 @@ float Height(int, int);
 
 int main(int argc, char* argv[])
 {
-#ifndef _OPENMP
-    fprintf(stderr, "No OpenMP support!\n");
-    return 1;
-#endif
+    #ifndef _OPENMP
+        fprintf(stderr, "No OpenMP support!\n");
+        return 1;
+    #endif
 
     // Set the number of threads to use in the for-loop
     omp_set_num_threads(NUMT);
 
     // Get ready to record the maximum performance
     float maxPerformance = 0.;      // Must be declared outside the NUMTRIES loop
-    float volume;              // must be declared outside the NUMTRIES loop
+    double volume;              // must be declared outside the NUMTRIES loop
 
     // The area of a single full-sized tile:
     float fullTileArea = (((XMAX - XMIN) / (float)(NUMNODES - 1)) *
-        ((YMAX - YMIN) / (float)(NUMNODES - 1)));
+    ((YMAX - YMIN) / (float)(NUMNODES - 1)));
 
     // Sum up the weighted heights into the variable "volume"
     // using an OpenMP for loop and a reduction:
@@ -69,12 +69,12 @@ int main(int argc, char* argv[])
         // Start the calculation timer
         double time0 = omp_get_wtime();
 
-        #pragma omp parallel for default(none) reduction(+:volume)
+        #pragma omp parallel for default(none) shared(fullTileArea) reduction(+:volume)
         for (int i = 0; i < NUMNODES * NUMNODES; i++)
         {
             int iu = i % NUMNODES;
             int iv = i / NUMNODES;
-            float z = Height(iu, iv);
+            double z = Height(iu, iv);
 
             // Calculate area from current height sample
             double tile_area = (z * 2) * fullTileArea;
@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
         double time1 = omp_get_wtime();
 
         // Calculate the operations / sec of this run
-        double megaHeightsPerSecond = ((double)NUMNODES * (double)NUMNODES)
-            / (time1 - time0) / 1000000.;
+        double megaHeightsPerSecond = ( (double)NUMNODES * (double)NUMNODES )
+        / (time1 - time0) / 1000000.;
 
         // Prevent a divide by 0 infinite result from poluting the data
         if (isfinite(megaHeightsPerSecond))
@@ -108,7 +108,8 @@ int main(int argc, char* argv[])
         }
     }
 
-    printf("Volume: %lf\n", volume);
+    // Print out the volume
+    //printf("Volume: %lf\n", volume);
 
     // Print out the maximum performance value of the trials set 
     printf("%.2f\t", maxPerformance);
