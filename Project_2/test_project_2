@@ -20,7 +20,7 @@ OUTPUT_FILE="Project_2_Output.txt"
 printf "\nGathering the results...\n"
 
 # Enter the column values for num trials into the output file
-printf "\t10\t100\t1000\t10000\t100000\t1000000\n" >> $OUTPUT_FILE
+printf "\t1000\t10000\t50000\t100000\t500000\t1000000\n" >> $OUTPUT_FILE
 
 # Iterate through the number of threads
 for t in 1 2 3 4 5 6
@@ -32,7 +32,7 @@ do
     printf "$NUMT\t" >> $OUTPUT_FILE
 
     # Iterate through the number of trials
-    for s in 10 100 1000 10000 100000 1000000
+    for s in 1000 10000 50000 100000 500000 1000000
     do
         # Set the number of trials
         NUMTRIALS=$s
