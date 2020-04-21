@@ -5,8 +5,9 @@
 ##  Date:         4/20/2020
 ##  Course:       OSU cs-475
 ##  Project:      Project 3
-##  Description:  Script to compile and run project 3 with GCC while using a
-##                range of values for the #defines NUMT, NUMNODES.
+##  Description:  Script to compile and run project 3 with an included makefile
+##                and redirect the stdout output to a file and then cat out
+##                the data file's contents.
 ###############################################################################
 
 MAKE_FILE="makefile"

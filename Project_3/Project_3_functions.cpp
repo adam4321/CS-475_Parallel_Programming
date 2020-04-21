@@ -73,7 +73,7 @@ int Ranf( unsigned int *seedp, int ilow, int ihigh )
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
-#include <stdlib.h>
+
 /* This algorithm is mentioned in the ISO C standard, here extended
    for 32 bits.  */
 int
