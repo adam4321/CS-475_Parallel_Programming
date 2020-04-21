@@ -20,8 +20,8 @@ OUTPUT_FILE="Project_3_Output.txt"
 # Message to user while results are gathered
 printf "\nGathering the results...\n"
 
-# Compile with makefile
-mingw32-make.exe $EXECUTABLE
+# Compile with makefile and don't print to stdout
+mingw32-make.exe $EXECUTABLE  > /dev/null
 
 # Run the program and redirect stdout to file
 $EXECUTABLE >>  $OUTPUT_FILE
