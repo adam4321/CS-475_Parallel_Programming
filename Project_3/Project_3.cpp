@@ -41,6 +41,9 @@ const float RANDOM_TEMP =	10.0;	// plus or minus noise
 const float MIDTEMP =		40.0;
 const float MIDPRECIP =		10.0;
 
+float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+float temp = AVG_TEMP - AMP_TEMP * cos( ang );
+
 
 int main(int argc, char *argv[])
 {
@@ -53,19 +56,15 @@ int main(int argc, char *argv[])
     omp_set_num_threads( 4 );	// same as # of sections
 
 
-    float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
-    float temp = AVG_TEMP - AMP_TEMP * cos( ang );
-
+    // Create random values from setup parameters
     unsigned int seed = 0;
     NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
 
     float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
     NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
-    if( NowPrecip < 0. )
-    {
-        NowPrecip = 0.;
-    }
+    if( NowPrecip < 0. )    { NowPrecip = 0.; }
         
+
     // Functional decomposition spread over 4 threads
     #pragma omp parallel sections
     {

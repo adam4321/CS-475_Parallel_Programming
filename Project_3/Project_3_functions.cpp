@@ -11,7 +11,7 @@
 #include <random>
 
 
-// Functions run in parallel to simulate the grain-growing operation
+//* Functions run in parallel to simulate the grain-growing operation -------*/
 
 void GrainDeer()
 {
@@ -33,11 +33,11 @@ void Watcher()
 
 void MyAgent()
 {
-    printf("hello myagent\n");
+    printf("hello Tiger\n");
 }
 
 
-// Helper Functions:
+/* Helper Functions ---------------------------------------------------------*/
 
 // To choose a random number between two floats
 float Ranf( unsigned int *seedp,  float low, float high )
@@ -72,12 +72,12 @@ int Ranf( unsigned int *seedp, int ilow, int ihigh )
    Lesser General Public License for more details.
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   <http://www.gnu.org/licenses/>.
 
-/* This algorithm is mentioned in the ISO C standard, here extended
-   for 32 bits.  */
-int
-rand_r (unsigned int *seed)
+   This algorithm is mentioned in the ISO C standard, here extended
+   for 32 bits.
+*/
+int rand_r (unsigned int *seed)
 {
   unsigned int next = *seed;
   int result;
