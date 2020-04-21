@@ -20,13 +20,13 @@
 int	NowYear = 2020;		// 2020 - 2025
 int	NowMonth = 0;		// 0 - 11
 
-float	NowPrecip;		// inches of rain per month
-float	NowTemp;		// temperature this month
-float	NowHeight;		// grain height in inches
-int	    NowNumDeer;		// number of deer in the current population
+// Simulation setup variables
+float	NowPrecip = 3.;		// inches of rain per month
+float	NowTemp = 45.;		// temperature this month
+float	NowHeight = 5.;		// grain height in inches
+int	    NowNumDeer = 25;		// number of deer in the current population
 
-
-// Required parameters
+// Required simulation parameters
 const float GRAIN_GROWS_PER_MONTH =		9.0;
 const float ONE_DEER_EATS_PER_MONTH =	1.0;
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
     float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
     float temp = AVG_TEMP - AMP_TEMP * cos( ang );
-    
+
     unsigned int seed = 0;
     NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
 
@@ -66,8 +66,7 @@ int main(int argc, char *argv[])
         NowPrecip = 0.;
     }
         
-
-
+    // Functional decomposition spread over 4 threads
     #pragma omp parallel sections
     {
         #pragma omp section

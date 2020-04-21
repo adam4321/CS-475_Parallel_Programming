@@ -18,7 +18,7 @@ OUTPUT_FILE="Project_3_Output.txt"
 > $OUTPUT_FILE
 
 # Message to user while results are gathered
-printf "\nGathering the results...\n"
+printf "\nGathering the results...\n\n"
 
 # Compile with makefile and don't print to stdout
 mingw32-make.exe $EXECUTABLE  > /dev/null
@@ -27,7 +27,9 @@ mingw32-make.exe $EXECUTABLE  > /dev/null
 $EXECUTABLE >>  $OUTPUT_FILE
 
 # Print a description of the axes to the terminal
-printf "\nGrain Growing Simulation\n\n"
+printf "********************************"
+printf "\n**  Grain Growing Simulation  **\n"
+printf "********************************\n\n"
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE
