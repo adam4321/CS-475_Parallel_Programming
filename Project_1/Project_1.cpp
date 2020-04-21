@@ -181,8 +181,6 @@ int main(int argc, char* argv[])
 // To choose a random number between two floats or two ints, use:
 
 
-#include <stdlib.h>
-
 float Ranf(float low, float high)
 {
 	float r = (float)rand();				// 0 - RAND_MAX
