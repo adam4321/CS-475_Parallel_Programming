@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 
 
     float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
-
     float temp = AVG_TEMP - AMP_TEMP * cos( ang );
+    
     unsigned int seed = 0;
     NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
 
@@ -89,8 +89,9 @@ int main(int argc, char *argv[])
         {
             MyAgent( );	// your own
         }
-    }       // implied barrier -- all functions must return in order
-        // to allow any of them to get past here
+    }
+    // implied barrier -- all functions must return in order
+    // to allow any of them to get past here
 
     return 0;
 }
