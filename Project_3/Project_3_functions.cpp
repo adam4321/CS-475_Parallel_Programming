@@ -16,19 +16,11 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-
-// Global system state variables
-int	NowYear = 2020;		// 2020 - 2025
-int	NowMonth = 0;		// 0 - 11
-
-float	NowPrecip = 3.;		// inches of rain per month
-float	NowTemp = 45.;		// temperature this month
-float	NowHeight = 5.;		// grain height in inches
-int	    NowNumDeer = 25;		// number of deer in the current population
-
+// Seed for the local_rand_r function
 unsigned int seed = 0;
 
-// Required monthly simulation parameters
+
+// Global monthly simulation variables
 const float GRAIN_GROWS_PER_MONTH =		9.0;
 const float ONE_DEER_EATS_PER_MONTH =	1.0;
 
@@ -42,6 +34,16 @@ const float RANDOM_TEMP =	10.0;	// plus or minus noise
 
 const float MIDTEMP =		40.0;
 const float MIDPRECIP =		10.0;
+
+
+// Global system state variables
+int	NowYear = 2020;		// 2020 - 2025
+int	NowMonth = 0;		// 0 - 11
+
+float	NowPrecip = 3.;		// inches of rain per month
+float	NowTemp = 45.;		// temperature this month
+float	NowHeight = 5.;		// grain height in inches
+int	    NowNumDeer = 25;		// number of deer in the current population
 
 
 //* Functions run in parallel to simulate the grain-growing operation -------*/
@@ -109,7 +111,10 @@ void Watcher()
         // Done Assigning
         #pragma omp barrier
 
+        // Create sine wave to simulate seasons
         float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+
+        // Calculate seasonal temperatures
         float temp = AVG_TEMP - AMP_TEMP * cos( ang );
 
         NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
