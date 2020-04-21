@@ -1,5 +1,5 @@
 CC      := g++
-CCFLAGS := -O3 -lm -fopenmp
+CCFLAGS := -O3 -lm -fopenmp -std=c++11
 LDFLAGS :=
 
 TARGETS:= Project_3

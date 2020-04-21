@@ -17,6 +17,6 @@ void MyAgent();
 // Helper functions
 float Ranf(unsigned int *, float, float);
 int Ranf(unsigned int *, int, int);
-int rand_r(unsigned int* seed);
+int local_rand_r(unsigned int* seed);
 
 #endif

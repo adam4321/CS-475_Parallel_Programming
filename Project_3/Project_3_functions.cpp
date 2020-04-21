@@ -10,30 +10,126 @@
 #include <stdlib.h>
 #include <random>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+
+// Global system state variables
+int	NowYear = 2020;		// 2020 - 2025
+int	NowMonth = 0;		// 0 - 11
+
+float	NowPrecip = 3.;		// inches of rain per month
+float	NowTemp = 45.;		// temperature this month
+float	NowHeight = 5.;		// grain height in inches
+int	    NowNumDeer = 25;		// number of deer in the current population
+
+unsigned int seed = 0;
+
+// Required monthly simulation parameters
+const float GRAIN_GROWS_PER_MONTH =		9.0;
+const float ONE_DEER_EATS_PER_MONTH =	1.0;
+
+const float AVG_PRECIP_PER_MONTH =		7.0;	// average
+const float AMP_PRECIP_PER_MONTH =		6.0;	// plus or minus
+const float RANDOM_PRECIP =			    2.0;	// plus or minus noise
+
+const float AVG_TEMP =		60.0;	// average
+const float AMP_TEMP =		20.0;	// plus or minus
+const float RANDOM_TEMP =	10.0;	// plus or minus noise
+
+const float MIDTEMP =		40.0;
+const float MIDPRECIP =		10.0;
+
 
 //* Functions run in parallel to simulate the grain-growing operation -------*/
 
 void GrainDeer()
 {
-    printf("hello graindeer\n");
+    int x=0;
+    while (NowYear <= 2025)
+    {
+        x++;
+        // Done Computing
+        #pragma omp barrier
+        x++;
+        printf("GrainDeer %d ", x);
+        // Done Assigning
+        #pragma omp barrier
+        // Done Printing
+        #pragma omp barrier
+    }
 }
 
 
 void Grain()
 {
-    printf("hello grain\n");
-}
-
-
-void Watcher()
-{
-    printf("hello watcher\n");
+    int x=2;
+    while (NowYear <= 2025)
+    {
+        x++;
+        // Done Computing
+        #pragma omp barrier
+        x++;
+        printf("Grain %d ", x);
+        // Done Assigning
+        #pragma omp barrier
+        // Done Printing
+        #pragma omp barrier
+    }
 }
 
 
 void MyAgent()
 {
-    printf("hello Tiger\n");
+    int x=4;
+    while (NowYear <= 2025)
+    {
+        x++;
+        // Done Computing
+        #pragma omp barrier
+        x++;
+        printf("Myagent %d ", x);
+        // Done Assigning
+        #pragma omp barrier
+        // Done Printing
+        #pragma omp barrier
+    }
+}
+
+
+void Watcher()
+{
+    while (NowYear <= 2025)
+    {
+        // Done Computing
+        #pragma omp barrier
+        // Done Assigning
+        #pragma omp barrier
+
+        float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+        float temp = AVG_TEMP - AMP_TEMP * cos( ang );
+
+        NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
+
+        float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
+        NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
+        if( NowPrecip < 0. )    { NowPrecip = 0.; }
+
+        // Print the current state and update the month and year
+        printf("Current Year: %d Current Month: %d\n", NowYear, NowMonth);
+
+        NowMonth++;
+        if (NowMonth == 12)
+        {
+            NowMonth = 0;
+            NowYear++;
+        }
+        // Done Printing
+        #pragma omp barrier
+    }
 }
 
 
@@ -42,7 +138,7 @@ void MyAgent()
 // To choose a random number between two floats
 float Ranf( unsigned int *seedp,  float low, float high )
 {
-        float r = (float)( rand_r( seedp ) );              // 0 - RAND_MAX
+        float r = (float)( local_rand_r( seedp ) );              // 0 - RAND_MAX
 
         return(   low  +  r * ( high - low ) / (float)RAND_MAX   );
 }
@@ -77,7 +173,7 @@ int Ranf( unsigned int *seedp, int ilow, int ihigh )
    This algorithm is mentioned in the ISO C standard, here extended
    for 32 bits.
 */
-int rand_r (unsigned int *seed)
+int local_rand_r (unsigned int *seed)
 {
   unsigned int next = *seed;
   int result;
