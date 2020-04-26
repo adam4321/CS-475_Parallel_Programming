@@ -46,7 +46,7 @@ float	NowHeight = 5.;		// grain height in inches
 int	    NowNumDeer = 25;		// number of deer in the current population
 
 
-//* Functions run in parallel to simulate the grain-growing operation -------*/
+/* Functions run in parallel to simulate the grain-growing operation --------*/
 
 void GrainDeer()
 {
