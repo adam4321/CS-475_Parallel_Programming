@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
         return 1;
     #endif
 
+    Calc_Weather();
+
     // Set the number of threads to use
     omp_set_num_threads( 4 );	// same as # of sections
     

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+###############################################################################
+##  Author:       Adam Wright
+##  Date:         4/20/2020
+##  Course:       OSU cs-475
+##  Project:      Project 3
+##  Description:  Script to compile and run project 3 with an included makefile
+##                and redirect the stdout output to a file and then cat out
+##                the data file's contents.
+###############################################################################
+
+CPP_FILE="Project_3.cpp"
+EXECUTABLE="Project_3"
+OUTPUT_FILE="Project_3_Output.txt"
+
+# Clear the test file
+> $OUTPUT_FILE
+
+# Message to user while results are gathered
+printf "\nGathering the results...\n\n"
+
+# Compile the executable
+g++ $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
+
+# Run the program and redirect stdout to file
+./$EXECUTABLE >>  $OUTPUT_FILE
+
+# Print a description of the axes to the terminal
+printf "          ********************************\n"
+printf "          **  Grain Growing Simulation  **\n"
+printf "          ********************************\n\n"
+
+printf "Year\tMonth\tPrecip\tTemp\tGrain_height\tnum_deer\n\n"
+
+
+# Print the output file contents to the terminal
+cat $OUTPUT_FILE

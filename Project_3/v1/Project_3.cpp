@@ -2,13 +2,16 @@
 **  Author:       Adam Wright
 **  Email:        wrighada@oregonstate.edu
 **  Date:         4-20-2020
-**  Description:  Function definitions for Program 3 cs-475 spring 2020
+**  Description:  Program 3 for OSU cs-475 Parallel Programming. The program
+**                uses OpenMP and is a simulation of 3 actors and a watcher in
+**                an environment. It uses functional decomposition to have 4
+**                synchronized threads executing the actors.
 ******************************************************************************/
 
-#include "Project_3_functions.hpp"
-#include <iostream>
+#include <stdio.h>
 #include <stdlib.h>
-#include <random>
+#include <omp.h>
+
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -16,9 +19,17 @@
     #define M_PI 3.14159265358979323846
 #endif
 
-// Seed for the local_rand_r function
-unsigned int seed = 0;
 
+/* Global Variables ---------------------------------------------------------*/
+
+// Global system state variables
+int	NowYear = 2020;		// 2020 - 2025
+int	NowMonth = 0;		// 0 - 11
+
+float	NowPrecip = 3.;		// inches of rain per month
+float	NowTemp = 45.;		// temperature this month
+float	NowHeight = 5;		// grain height in inches
+int	    NowNumDeer = 3;		// number of deer in the current population
 
 // Global monthly simulation variables
 const float GRAIN_GROWS_PER_MONTH =		9.0;
@@ -36,30 +47,95 @@ const float MIDTEMP =		40.0;
 const float MIDPRECIP =		10.0;
 
 
-// Global system state variables
-int	NowYear = 2020;		// 2020 - 2025
-int	NowMonth = 0;		// 0 - 11
+/* Function Declarations ----------------------------------------------------*/
 
-float	NowPrecip = 3.;		// inches of rain per month
-float	NowTemp = 45.;		// temperature this month
-float	NowHeight = 5;		// grain height in inches
-int	    NowNumDeer = 3;		// number of deer in the current population
+// Functions run in parallel to simulate the grain-growing operation
+void GrainDeer();
+void Grain();
+void Watcher();
+void MyAgent();
+
+// Helper functions
+float Ranf(unsigned int *, float, float);
+int Ranf(unsigned int *, int, int);
+int local_rand_r(unsigned int* seed);
 
 
-/* Functions run in parallel to simulate the grain-growing operation --------*/
+/* Main Function ------------------------------------------------------------*/
+
+int main(int argc, char *argv[])
+{
+    #ifndef _OPENMP
+        fprintf(stderr, "No OpenMP support!\n");
+        return 1;
+    #endif
+
+
+    // Seed for the local_rand_r function
+    unsigned int seed = 0;
+
+    // Create sine wave to simulate seasons
+    double ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+
+    // Calculate seasonal temperatures
+    double temp = AVG_TEMP - AMP_TEMP * cos( ang );
+
+    NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
+
+    double precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
+    NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
+    if( NowPrecip < 0. )    { NowPrecip = 0.; }
+
+
+    // Set the number of threads to use
+    omp_set_num_threads( 4 );	// same as # of sections
+
+    
+    // Functional decomposition spread over 4 threads
+    #pragma omp parallel sections
+    {
+        #pragma omp section
+        {
+            GrainDeer();
+        }
+
+        #pragma omp section
+        {
+            Grain();
+        }
+
+        #pragma omp section
+        {
+            MyAgent();	// your own
+        }
+
+        #pragma omp section
+        {
+            Watcher();
+        }
+    }
+    // implied barrier -- all functions must return in order
+    // to allow any of them to get past here
+
+    return 0;
+}
+
+
+/* Function Definitions -----------------------------------------------------*/
 
 void GrainDeer()
 {
+    int grain_deer;
+
     while (NowYear <= 2025)
     {
-        int grain_deer = NowNumDeer;
-        float grain_height = NowHeight;
+        grain_deer = NowNumDeer;
 
-        if (grain_deer > grain_height)
+        if ((float)grain_deer > NowHeight)
         {
             grain_deer--;
         }
-        else if (grain_height > grain_deer)
+        else if ((float)grain_deer < NowHeight)
         {
             grain_deer++;
         }
@@ -79,15 +155,29 @@ void GrainDeer()
 
 void Grain()
 {
+    float grain_height;
+    float tempFactor;
+    float precipFactor;
+
     while (NowYear <= 2025)
     {
+        grain_height = NowHeight;
         
+        float tempFactor = exp(   -SQR(  ( NowTemp - MIDTEMP ) / 10.  )   );
+        float precipFactor = exp(   -SQR(  ( NowPrecip - MIDPRECIP ) / 10.  )   );
 
+        grain_height += tempFactor * precipFactor * GRAIN_GROWS_PER_MONTH;
+		grain_height -= (float) NowNumDeer * ONE_DEER_EATS_PER_MONTH;
+
+        if (grain_height < 0.)
+        {
+            grain_height = 0;
+        }
 
         // Done Computing
         #pragma omp barrier
         
-        
+        NowHeight = grain_height;
 
         // Done Assigning
         #pragma omp barrier
@@ -128,12 +218,9 @@ void Watcher()
         // Done Assigning
         #pragma omp barrier
 
-        
-        Calc_Weather();
-        
-
         // Print the current state and update the month and year
-        printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowYear, NowMonth + 1, NowPrecip, NowTemp, NowHeight, NowNumDeer);
+        printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowYear, NowMonth + 1, 
+        NowPrecip, NowTemp, NowHeight, NowNumDeer);
 
         NowMonth++;
         if (NowMonth == 12)
@@ -141,6 +228,22 @@ void Watcher()
             NowMonth = 0;
             NowYear++;
         }
+
+        // Seed for the local_rand_r function
+        unsigned int seed = 0;
+
+        // Create sine wave to simulate seasons
+        double ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+
+        // Calculate seasonal temperatures
+        double temp = AVG_TEMP - AMP_TEMP * cos( ang );
+
+        NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
+
+        double precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
+        NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
+        if( NowPrecip < 0. )    { NowPrecip = 0.; }
+
         // Done Printing
         #pragma omp barrier
     }
@@ -149,21 +252,10 @@ void Watcher()
 
 /* Helper Functions ---------------------------------------------------------*/
 
-// To calculate the current weather
-void Calc_Weather()
+// Function to return the square of a float
+float SQR( float x )
 {
-    // Create sine wave to simulate seasons
-    double ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
-
-    // Calculate seasonal temperatures
-    double temp = AVG_TEMP - AMP_TEMP * cos( ang );
-
-    NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
-
-    double precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
-    
-    NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
-    if( NowPrecip < 0. )    { NowPrecip = 0.; }
+    return x * x;
 }
 
 

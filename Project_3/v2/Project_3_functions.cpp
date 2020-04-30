@@ -161,7 +161,6 @@ void Calc_Weather()
     NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
 
     double precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
-    
     NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
     if( NowPrecip < 0. )    { NowPrecip = 0.; }
 }

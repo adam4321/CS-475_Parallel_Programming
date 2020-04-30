@@ -15,6 +15,7 @@ void Watcher();
 void MyAgent();
 
 // Helper functions
+void Calc_Weather();
 float Ranf(unsigned int *, float, float);
 int Ranf(unsigned int *, int, int);
 int local_rand_r(unsigned int* seed);

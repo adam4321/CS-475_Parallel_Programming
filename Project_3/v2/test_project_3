@@ -27,9 +27,12 @@ mingw32-make.exe $EXECUTABLE  > /dev/null
 $EXECUTABLE >>  $OUTPUT_FILE
 
 # Print a description of the axes to the terminal
-printf "********************************"
-printf "\n**  Grain Growing Simulation  **\n"
-printf "********************************\n\n"
+printf "          ********************************\n"
+printf "          **  Grain Growing Simulation  **\n"
+printf "          ********************************\n\n"
+
+printf "Year\tMonth\tPrecip\tTemp\tGrain_height\tnum_deer\n\n"
+
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE
