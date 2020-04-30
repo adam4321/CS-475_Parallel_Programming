@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <omp.h>
 
-
 #define _USE_MATH_DEFINES
 #include <math.h>
 #ifndef M_PI
@@ -28,8 +27,8 @@ int	NowMonth = 0;		// 0 - 11
 
 float	NowPrecip = 3.;		// inches of rain per month
 float	NowTemp = 45.;		// temperature this month
-float	NowHeight = 5;		// grain height in inches
-int	    NowNumDeer = 3;		// number of deer in the current population
+float	NowHeight = 1.;		// grain height in inches
+int	    NowNumDeer = 1;		// number of deer in the current population
 
 // Global monthly simulation variables
 const float GRAIN_GROWS_PER_MONTH =		9.0;
@@ -56,6 +55,7 @@ void Watcher();
 void MyAgent();
 
 // Helper functions
+float SQR( float x );
 float Ranf(unsigned int *, float, float);
 int Ranf(unsigned int *, int, int);
 int local_rand_r(unsigned int* seed);
@@ -74,18 +74,17 @@ int main(int argc, char *argv[])
     // Seed for the local_rand_r function
     unsigned int seed = 0;
 
-    // Create sine wave to simulate seasons
-    double ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+    float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
 
-    // Calculate seasonal temperatures
-    double temp = AVG_TEMP - AMP_TEMP * cos( ang );
-
+    float temp = AVG_TEMP - AMP_TEMP * cos( ang );
     NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
 
-    double precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
+    float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
     NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
-    if( NowPrecip < 0. )    { NowPrecip = 0.; }
-
+    if( NowPrecip < 0. )
+    {
+        NowPrecip = 0.;
+    }
 
     // Set the number of threads to use
     omp_set_num_threads( 4 );	// same as # of sections
@@ -211,6 +210,9 @@ void MyAgent()
 
 void Watcher()
 {
+    // Seed for the local_rand_r function
+    unsigned int seed = 0;
+
     while (NowYear <= 2025)
     {
         // Done Computing
@@ -219,7 +221,7 @@ void Watcher()
         #pragma omp barrier
 
         // Print the current state and update the month and year
-        printf("%d\t%d\t%.2lf\t%.2lf\t%.2lf\t%d\n", NowYear, NowMonth + 1, 
+        printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\n", NowYear, NowMonth + 1, 
         NowPrecip, NowTemp, NowHeight, NowNumDeer);
 
         NowMonth++;
@@ -229,20 +231,18 @@ void Watcher()
             NowYear++;
         }
 
-        // Seed for the local_rand_r function
-        unsigned int seed = 0;
 
-        // Create sine wave to simulate seasons
-        double ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
+        float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
 
-        // Calculate seasonal temperatures
-        double temp = AVG_TEMP - AMP_TEMP * cos( ang );
-
+        float temp = AVG_TEMP - AMP_TEMP * cos( ang );
         NowTemp = temp + Ranf( &seed, -RANDOM_TEMP, RANDOM_TEMP );
 
-        double precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
+        float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
         NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
-        if( NowPrecip < 0. )    { NowPrecip = 0.; }
+        if( NowPrecip < 0. )
+        {
+            NowPrecip = 0.;
+        }
 
         // Done Printing
         #pragma omp barrier
