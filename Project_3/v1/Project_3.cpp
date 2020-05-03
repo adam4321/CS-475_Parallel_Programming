@@ -29,6 +29,7 @@ float	NowPrecip = 3.;		// inches of rain per month
 float	NowTemp = 45.;		// temperature this month
 float	NowHeight = 1.;		// grain height in inches
 int	    NowNumDeer = 1;		// number of deer in the current population
+int     NowNumMonsters = 1  // number of monsters (MY AGENT)
 
 // Global monthly simulation variables
 const float GRAIN_GROWS_PER_MONTH =		9.0;
@@ -191,9 +192,11 @@ void Grain()
 // Function which is my agent which represents a monster who removes deer from the simulation
 void Monster()
 {
+    int num_monsters;
+
     while (NowYear <= 2025)
     {
-        
+        num_monsters = NowNumMonsters;
 
 
 
@@ -201,7 +204,7 @@ void Monster()
         #pragma omp barrier
 
 
-
+        NowNumMonsters = num_monsters;
 
         // Done Assigning
         #pragma omp barrier
@@ -225,8 +228,8 @@ void Watcher()
         #pragma omp barrier
 
         // Print the current state and update the month and year
-        printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\n", NowYear, NowMonth + 1, 
-        NowPrecip, NowTemp, NowHeight, NowNumDeer);
+        printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
+        NowPrecip, NowTemp, NowHeight, NowNumDeer, NowNumMonsters);
 
         NowMonth++;
         if (NowMonth == 12)
