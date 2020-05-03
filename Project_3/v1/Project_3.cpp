@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
     // Seed for the local_rand_r function
     unsigned int seed = 0;
 
+    // Call each of the randomization functions before the functions run
     float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
 
     float temp = AVG_TEMP - AMP_TEMP * cos( ang );
@@ -132,10 +133,12 @@ void GrainDeer()
     {
         grain_deer = NowNumDeer;
 
+        // If deer overrun the grain, then they die
         if ((float)grain_deer > NowHeight)
         {
             grain_deer--;
         }
+        // If the height is greater than the deer, then they reproduce
         else if ((float)grain_deer < NowHeight)
         {
             grain_deer++;
@@ -144,6 +147,7 @@ void GrainDeer()
         // Done Computing
         #pragma omp barrier
 
+        // Update the global deer count
         NowNumDeer = grain_deer;
 
         // Done Assigning
@@ -165,12 +169,15 @@ void Grain()
     {
         grain_height = NowHeight;
         
+        // Use sine-wave functions to create cyclical values 
         float tempFactor = exp(   -SQR(  ( NowTemp - MIDTEMP ) / 10.  )   );
         float precipFactor = exp(   -SQR(  ( NowPrecip - MIDPRECIP ) / 10.  )   );
 
+        // Create the current grain height
         grain_height += tempFactor * precipFactor * GRAIN_GROWS_PER_MONTH;
 		grain_height -= (float) NowNumDeer * ONE_DEER_EATS_PER_MONTH;
 
+        // Don't allow a negative grain height
         if (grain_height < 0.)
         {
             grain_height = 0;
@@ -200,17 +207,20 @@ void Wolves()
         bool new_wolf = false;
         num_wolves = NowNumWolves;
 
+        // Once there is a group of deer, one will be captured
         if (NowNumDeer > 3)
         {
             deer_captured++;
         }
 
+        // After 3 deer are captured, a new wolf is born
         if (deer_captured > 3)
         {
             num_wolves++;
             deer_captured = 0;
         }
 
+        // If the deer population drops, then the wolf population will also drop
         if (num_wolves > 1 && num_wolves > NowNumDeer)
         {
             num_wolves--;
@@ -252,9 +262,10 @@ void Watcher()
         temp_c = (5./9.) * (NowTemp - 32);
 
         // Print the current state and update the month and year
-        printf(" %d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
+        printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
         precip_c, temp_c, NowHeight, NowNumDeer, NowNumWolves);
 
+        // Update the current month and year
         NowMonth++;
         if (NowMonth == 12)
         {
@@ -262,7 +273,7 @@ void Watcher()
             NowYear++;
         }
 
-
+        // Call the randomization functions to set up the next month
         float ang = (  30.*(float)NowMonth + 15.  ) * ( M_PI / 180. );
 
         float temp = AVG_TEMP - AMP_TEMP * cos( ang );
@@ -270,6 +281,7 @@ void Watcher()
 
         float precip = AVG_PRECIP_PER_MONTH + AMP_PRECIP_PER_MONTH * sin( ang );
         NowPrecip = precip + Ranf( &seed,  -RANDOM_PRECIP, RANDOM_PRECIP );
+
         if( NowPrecip < 0. )
         {
             NowPrecip = 0.;
