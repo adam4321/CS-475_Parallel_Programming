@@ -31,7 +31,7 @@ printf "          ********************************\n"
 printf "          **  Grain Growing Simulation  **\n"
 printf "          ********************************\n\n"
 
-printf "Year\tMonth\tPrecip\tTemp\tGrain_hgt\tnum_deer\tnum_monsters\n\n"
+printf "Year  Month    Precip   Temp  Grain_ht  Deer  Wolves\n\n"
 
 
 # Print the output file contents to the terminal

@@ -25,11 +25,12 @@
 int	NowYear = 2020;		// 2020 - 2025
 int	NowMonth = 0;		// 0 - 11
 
-float	NowPrecip = 3.;		// inches of rain per month
-float	NowTemp = 45.;		// temperature this month
-float	NowHeight = 1.;		// grain height in inches
-int	    NowNumDeer = 1;		// number of deer in the current population
-int     NowNumMonsters = 1  // number of monsters (MY AGENT)
+float	NowPrecip = 3.;		    // inches of rain per month
+float	NowTemp = 45.;		    // temperature this month
+float	NowHeight = 3.;		    // grain height in inches
+int	    NowNumDeer = 2;		    // number of deer in the current population
+int     NowNumWolves = 1;       // number of wolves (MY AGENT)
+int     NowDeerCaptured = 0;    // number of deer the wolves have captured
 
 // Global monthly simulation variables
 const float GRAIN_GROWS_PER_MONTH =		9.0;
@@ -53,7 +54,7 @@ const float MIDPRECIP =		10.0;
 void GrainDeer();
 void Grain();
 void Watcher();
-void MyAgent();
+void Wolves();
 
 // Helper functions
 float SQR( float x );
@@ -106,7 +107,7 @@ int main(int argc, char *argv[])
 
         #pragma omp section
         {
-            Monster();	// your own
+            Wolves();	// your own
         }
 
         #pragma omp section
@@ -190,21 +191,39 @@ void Grain()
 
 
 // Function which is my agent which represents a monster who removes deer from the simulation
-void Monster()
+void Wolves()
 {
-    int num_monsters;
+    int num_wolves;
+    int deer_captured = 0;
 
     while (NowYear <= 2025)
     {
-        num_monsters = NowNumMonsters;
+        bool new_wolf = false;
+        num_wolves = NowNumWolves;
 
+        if (NowNumDeer > 3)
+        {
+            deer_captured++;
+        }
+
+        if (NowDeerCaptured > 5)
+        {
+            num_wolves++;
+            new_wolf = true;
+        }
 
 
         // Done Computing
         #pragma omp barrier
 
 
-        NowNumMonsters = num_monsters;
+        NowNumWolves = num_wolves;
+        NowDeerCaptured = deer_captured;
+
+        if (new_wolf == true)
+        {
+            NowDeerCaptured = 0;
+        }
 
         // Done Assigning
         #pragma omp barrier
@@ -220,6 +239,9 @@ void Watcher()
     // Seed for the local_rand_r function
     unsigned int seed = 0;
 
+    float precip_c;
+    float temp_c;
+
     while (NowYear <= 2025)
     {
         // Done Computing
@@ -227,9 +249,13 @@ void Watcher()
         // Done Assigning
         #pragma omp barrier
 
+        // Conver temperature and precipitation to metric locally
+        precip_c = NowPrecip * 2.54;
+        temp_c = (5./9.) * (NowTemp - 32);
+
         // Print the current state and update the month and year
         printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
-        NowPrecip, NowTemp, NowHeight, NowNumDeer, NowNumMonsters);
+        precip_c, temp_c, NowHeight, NowNumDeer, NowNumMonsters);
 
         NowMonth++;
         if (NowMonth == 12)
