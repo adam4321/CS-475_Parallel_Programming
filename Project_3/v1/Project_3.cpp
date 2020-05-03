@@ -28,9 +28,8 @@ int	NowMonth = 0;		// 0 - 11
 float	NowPrecip = 3.;		    // inches of rain per month
 float	NowTemp = 45.;		    // temperature this month
 float	NowHeight = 3.;		    // grain height in inches
-int	    NowNumDeer = 2;		    // number of deer in the current population
+int	    NowNumDeer = 1;		    // number of deer in the current population
 int     NowNumWolves = 1;       // number of wolves (MY AGENT)
-int     NowDeerCaptured = 0;    // number of deer the wolves have captured
 
 // Global monthly simulation variables
 const float GRAIN_GROWS_PER_MONTH =		9.0;
@@ -206,24 +205,23 @@ void Wolves()
             deer_captured++;
         }
 
-        if (NowDeerCaptured > 5)
+        if (deer_captured > 3)
         {
             num_wolves++;
-            new_wolf = true;
+            deer_captured = 0;
+        }
+
+        if (num_wolves > 1 && num_wolves > NowNumDeer)
+        {
+            num_wolves--;
         }
 
 
         // Done Computing
         #pragma omp barrier
 
-
+        // Update the global number of wolves
         NowNumWolves = num_wolves;
-        NowDeerCaptured = deer_captured;
-
-        if (new_wolf == true)
-        {
-            NowDeerCaptured = 0;
-        }
 
         // Done Assigning
         #pragma omp barrier
@@ -254,8 +252,8 @@ void Watcher()
         temp_c = (5./9.) * (NowTemp - 32);
 
         // Print the current state and update the month and year
-        printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
-        precip_c, temp_c, NowHeight, NowNumDeer, NowNumMonsters);
+        printf(" %d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
+        precip_c, temp_c, NowHeight, NowNumDeer, NowNumWolves);
 
         NowMonth++;
         if (NowMonth == 12)
