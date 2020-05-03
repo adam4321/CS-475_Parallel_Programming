@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
         #pragma omp section
         {
-            MyAgent();	// your own
+            Monster();	// your own
         }
 
         #pragma omp section
@@ -122,6 +122,7 @@ int main(int argc, char *argv[])
 
 /* Function Definitions -----------------------------------------------------*/
 
+// Function that represents the deer population over time in the simulation
 void GrainDeer()
 {
     int grain_deer;
@@ -152,6 +153,7 @@ void GrainDeer()
 }
 
 
+// Function that represents the grain height over time in the simulation
 void Grain()
 {
     float grain_height;
@@ -186,7 +188,8 @@ void Grain()
 }
 
 
-void MyAgent()
+// Function which is my agent which represents a monster who removes deer from the simulation
+void Monster()
 {
     while (NowYear <= 2025)
     {
@@ -208,6 +211,7 @@ void MyAgent()
 }
 
 
+// Function which watches the other threads and gathers and prints the current state of the simulation
 void Watcher()
 {
     // Seed for the local_rand_r function
@@ -264,7 +268,7 @@ float Ranf( unsigned int *seedp,  float low, float high )
 {
     float r = (float)( local_rand_r( seedp ) );              // 0 - RAND_MAX
 
-    return(   low  +  r * ( high - low ) / (double)RAND_MAX   );
+    return(   low  +  r * ( high - low ) / (float)RAND_MAX   );
 }
 
 
