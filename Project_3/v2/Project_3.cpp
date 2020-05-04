@@ -22,7 +22,11 @@ int main(int argc, char *argv[])
         return 1;
     #endif
 
-    Calc_Weather();
+    // Seed for the local_rand_r function
+    unsigned int seed = 0;
+
+    // Initial call to the randomization functions
+    Calc_Weather(&seed);
 
     // Set the number of threads to use
     omp_set_num_threads( 4 );	// same as # of sections
@@ -42,7 +46,7 @@ int main(int argc, char *argv[])
 
         #pragma omp section
         {
-            MyAgent();	// your own
+            Wolves();	// your own
         }
 
         #pragma omp section

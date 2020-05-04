@@ -11,13 +11,13 @@
 // Functions run in parallel to simulate the grain-growing operation
 void GrainDeer();
 void Grain();
+void Wolves();
 void Watcher();
-void MyAgent();
 
 // Helper functions
-void Calc_Weather();
+void Calc_Weather(unsigned int *seed);
+float SQR( float x );
 float Ranf(unsigned int *, float, float);
 int Ranf(unsigned int *, int, int);
-int local_rand_r(unsigned int* seed);
 
 #endif
