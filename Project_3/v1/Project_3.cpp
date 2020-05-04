@@ -249,6 +249,7 @@ void Watcher()
 
     float precip_c;
     float temp_c;
+    float grain_height_c;
 
     while (NowYear <= 2025)
     {
@@ -260,10 +261,11 @@ void Watcher()
         // Conver temperature and precipitation to metric locally
         precip_c = NowPrecip * 2.54;
         temp_c = (5./9.) * (NowTemp - 32);
+        grain_height_c = NowHeight * 2.54;
 
         // Print the current state and update the month and year
         printf("%d\t%d\t%.2f\t%.2f\t%.2f\t%d\t%d\n", NowYear, NowMonth + 1, 
-        precip_c, temp_c, NowHeight, NowNumDeer, NowNumWolves);
+        precip_c, temp_c, grain_height_c, NowNumDeer, NowNumWolves);
 
         // Update the current month and year
         NowMonth++;
