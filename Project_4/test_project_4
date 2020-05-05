@@ -9,9 +9,10 @@
 ##                range of values for the #defines ARRAYSIZE and NUMT.
 ###############################################################################
 
-CPP_FILE="Project_1.cpp"
-EXECUTABLE="Project_1"
-OUTPUT_FILE="Project_1_Output.txt"
+CPP_FILE="Project_4.cpp"
+EXECUTABLE="Project_4"
+OUTPUT_FILE_1="Project_4_Output_SIMD.txt"
+OUTPUT_FILE_2="Project_4_Output_MT_SIMD.txt"
 
 # Clear the test file
 > $OUTPUT_FILE
@@ -20,32 +21,46 @@ OUTPUT_FILE="Project_1_Output.txt"
 printf "\nGathering the results...\n"
 
 # Enter the column values for num trials into the output file
-printf "\t1000\t10000\t50000\t100000\t500000\t1000000\n" >> $OUTPUT_FILE
+printf "1000\t8000\t10000\t80000\t100000\t800000\t1000000\t8000000\n" >> $OUTPUT_FILE
 
-# Iterate through the number of threads
-for t in 1 2 3 4 5 6
+
+# Iterate through the number of trials single threadedly
+for s in 1000 8000 10000 80000 100000 800000 1000000 8000000
 do
-    # Set the number of threads
-    NUMT=$t
+    # Set the number of trials
+    ARRAYSIZE=$s
 
-    # Enter the thread count into the start of each row of the file
-    printf "$NUMT\t" >> $OUTPUT_FILE
-
-    # Iterate through the number of trials
-    for s in 1000 10000 50000 100000 500000 1000000
-    do
-        # Set the number of trials
-        NUMTRIALS=$s
-
-        # Compile and run with the currently set values and record the results
-        g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
-        ./$EXECUTABLE >> $OUTPUT_FILE
-    done
-    echo >> $OUTPUT_FILE
+    # Compile and run with the currently set values and record the results
+    g++ -DARRAYSIZE=$s $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
+    ./$EXECUTABLE >> $OUTPUT_FILE
 done
+echo >> $OUTPUT_FILE_1
+
+
+# # Iterate through the number of threads
+# for t in 1 2 3 4 5 6
+# do
+#     # Set the number of threads
+#     NUMT=$t
+
+#     # Enter the thread count into the start of each row of the file
+#     printf "$NUMT\t" >> $OUTPUT_FILE
+
+#     # Iterate through the number of trials
+#     for s in 1000 8000 10000 80000 100000 800000 1000000 8000000
+#     do
+#         # Set the number of trials
+#         NUMTRIALS=$s
+
+#         # Compile and run with the currently set values and record the results
+#         g++ -DNUMT=$t -DNUMTRIALS=$s $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
+#         ./$EXECUTABLE >> $OUTPUT_FILE
+#     done
+#     echo >> $OUTPUT_FILE_2
+# done
 
 # Print a description of the axes to the terminal
-printf "\nNum Trials (X) vs Thread count (Y)\n\n"
+printf "\nSIMD vs non-SIMDn\n"
 
 # Print the output file contents to the terminal
-cat $OUTPUT_FILE
+cat $OUTPUT_FILE_1
