@@ -17,20 +17,20 @@
 
 // Setting the array size
 #ifndef SIZE
-#define SIZE   80000
+#define SIZE   1000
 #endif
 
 // Setting the number of iterations
 #ifndef NUMTRIES
-#define NUMTRIES	1000
+#define NUMTRIES	100
 #endif
 
 // Setting the number of threads
 #ifndef NUMT
-#define NUMT		4
+#define NUMT		1
 #endif
 
-// Set the 
+// Set the SIMD split of the array to each core
 #define NUM_ELEMENTS_PER_CORE   SIZE/NUMT
 
 // Arrays for the test
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 	#endif
 
 
-    // Inialize the arrays
+    // Inialize the arrays with values
     for (int i = 0; i < SIZE; i++)
     {
         A[i] = 1.;
@@ -90,7 +90,8 @@ int main(int argc, char* argv[])
         }
     }
 
-    printf("Standard Peak Performance = %8.2lf MegaFLOPS/Sec\nArr sum: %.2lf\n", Arr_Flops, arr_sum);
+    // COMMENT OUT! - FOR DEBUGGING
+    // printf("Standard Peak Performance = %8.2lf MegaFLOPS/Sec\nArr sum: %.2lf\n", Arr_Flops, arr_sum);
 
 
     /******************************************
@@ -116,12 +117,13 @@ int main(int argc, char* argv[])
         }
     }
 
-    printf("SIMD Peak Performance = %8.2lf MegaFLOPS/Sec\nArr sum: %.2lf\n", Simd_Flops, arr_sum);
+    // COMMENT OUT! - FOR DEBUGGING
+    // printf("SIMD Peak Performance = %8.2lf MegaFLOPS/Sec\nArr sum: %.2lf\n", Simd_Flops, arr_sum);
+    // printf("SIMD Speedup: %lf\n", speedup);
 
-    // Calculate the speedup
+    // Calculate the SIMD alone speedup
     speedup = Simd_Flops / Arr_Flops;
-
-    printf("SIMD Speedup: %lf\n", speedup);
+    printf("%11.2lf\t", speedup);
 
 
     /********************************************************
@@ -152,12 +154,14 @@ int main(int argc, char* argv[])
         }
     }
 
-    printf("SIMD Peak Performance = %8.2lf MegaFLOPS/Sec\nArr sum: %.2lf\n", Simd_Flops, arr_sum);
+    // COMMENT OUT! - FOR DEBUGGING
+    // printf("SIMD Multi-core Peak Performance = %8.2lf MegaFLOPS/Sec\nArr sum: %.2lf\n", Simd_Flops, arr_sum);
+    // printf("SIMD multi-core Speedup: %lf\n", speedup);
 
-    // Calculate the speedup
+    // Calculate the SIMD and multi-core speedup
     speedup = Simd_Flops / Arr_Flops;
+    printf("%.2lf\n", speedup);
 
-    printf("SIMD Speedup: %lf\n", speedup);
 
     return 0;
 }
