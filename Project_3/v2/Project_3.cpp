@@ -2,6 +2,7 @@
 **  Author:       Adam Wright
 **  Email:        wrighada@oregonstate.edu
 **  Date:         4-20-2020
+**  Platform:     Windows compiling with GCC through mingw64
 **  Description:  Program 3 for OSU cs-475 Parallel Programming. The program
 **                uses OpenMP and is a simulation of 3 actors and a watcher in
 **                an environment. It uses functional decomposition to have 4
