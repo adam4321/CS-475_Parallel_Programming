@@ -45,10 +45,10 @@ done
 
 # Print a description of the axes to the terminal
 printf "\n**********************************************\n"
-printf "**   non-SIMD vs SIMD vs Multi-core SIMD    **\n"
+printf "**   Non-SIMD vs SIMD vs Multi-core SIMD    **\n"
 printf "**********************************************\n\n"
 
-printf "NUMT    SIZE         SPEEDUP1   SPEEDUP2\n\n"
+printf "NUMT    SIZE         SPEEDUP1  SPEEDUP2\n\n"
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE

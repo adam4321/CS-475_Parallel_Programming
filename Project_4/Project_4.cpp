@@ -3,8 +3,8 @@
 **  Email:        wrighada@oregonstate.edu
 **  Date:         5-4-2020
 **  Description:  Program 4 for OSU cs-475 Parallel Programming. The program
-**                uses SIMD to speed up the processing of an array while only
-**                using a single core.
+**                uses SIMD to speed up the processing of an array while
+**                using a single core and also multi-core for extra credit.
 ******************************************************************************/
 
 #include <stdio.h>
