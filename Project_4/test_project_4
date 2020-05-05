@@ -27,13 +27,13 @@ do
     NUMT=$t
 
     # Iterate through the different array sizes
-    for s in 1000 8000 10000 80000 100000 800000 1000000 8000000
+    for s in 1000 8000 10000 80000 100000 800000 1000000 4000000 8000000
     do
         # Set the number of trials
         SIZE=$s
 
         # Enter the thread count and array size into each row of the output file
-        printf "$NUMT\t$s\t" >> $OUTPUT_FILE
+        printf " $NUMT    $s\t" >> $OUTPUT_FILE
 
         # Compile and run with the currently set values and record the results
         g++ -DNUMT=$t -DSIZE=$s $CPP_FILE -o $EXECUTABLE -O3 -lm -fopenmp
@@ -48,7 +48,7 @@ printf "\n**********************************************\n"
 printf "**   Non-SIMD vs SIMD vs Multi-core SIMD    **\n"
 printf "**********************************************\n\n"
 
-printf "NUMT    SIZE         SPEEDUP1  SPEEDUP2\n\n"
+printf "NUMT  SIZE     Arr_MFL     Simd_MFL  S_UP-1  S_MT_MFL  S_UP_2\n\n"
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE

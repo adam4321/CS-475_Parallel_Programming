@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 
     // Calculate the SIMD alone speedup
     speedup = Simd_Flops / Arr_Flops;
-    printf("%11.2lf\t", speedup);
+    printf("%.2lf    %9.2lf %6.2lf ", Arr_Flops, Simd_Flops, speedup);
 
 
     /********************************************************
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
 
     // Calculate the SIMD and multi-core speedup
     speedup = Simd_Flops / Arr_Flops;
-    printf("%.2lf\n", speedup);
+    printf("%10.2lf %6.2lf\n", Simd_Flops, speedup);
 
 
     return 0;
