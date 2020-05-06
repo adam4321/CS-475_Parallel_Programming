@@ -9,204 +9,241 @@
 **                in the simulation. 
 ******************************************************************************/
 
+// System includes
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <omp.h>
-
-#define _USE_MATH_DEFINES
+#include <assert.h>
+#include <malloc.h>
 #include <math.h>
+#include <stdlib.h>
 
-// setting the number of threads:
-#ifndef NUMT
-#define NUMT		1
-#endif
+// CUDA runtime
+#include <cuda_runtime.h>
+
+// Helper functions and utilities to work with CUDA
+#include "helper_functions.h"
+#include "helper_cuda.h"
+
 
 // setting the number of trials in the monte carlo simulation:
 #ifndef NUMTRIALS
-#define NUMTRIALS	1000000
+#define NUMTRIALS	( 1024*1024 )
 #endif
 
-// how many tries to discover the maximum performance:
-#ifndef NUMTRIES
-#define NUMTRIES	10
+
+#ifndef BLOCKSIZE
+#define BLOCKSIZE		32     // number of threads per block
 #endif
+
+#define NUMBLOCKS		( NUMTRIALS / BLOCKSIZE )
+
 
 // ranges for the random numbers:
-const float XCMIN = 0.0;
-const float XCMAX = 2.0;
-const float YCMIN = 0.0;
-const float YCMAX = 2.0;
-const float RMIN = 0.5;
-const float RMAX = 2.0;
+const float XCMIN =	 0.0;
+const float XCMAX =	 2.0;
+const float YCMIN =	 0.0;
+const float YCMAX =	 2.0;
+const float RMIN  =	 0.5;
+const float RMAX  =	 2.0;
 
 // function prototypes:
-float Ranf(float, float);
-int Ranf(int, int);
-void TimeOfDaySeed();
+float		Ranf( float, float );
+int		Ranf( int, int );
+void		TimeOfDaySeed( );
+
+
+
+__global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
+{
+	unsigned int wgNumber      = blockIdx.x;
+	unsigned int wgDimension   = blockDim.x;
+	unsigned int threadNum     = threadIdx.x;
+	unsigned int gid           = wgNumber*wgDimension + threadNum;
+
+	// all the monte carlo stuff goes in here
+	// if we make it all the way through, then Hits[gid] = 1
+
+	// randomize the location and radius of the circle:
+	float xc = Xcs[gid];
+	float yc = Ycs[gid];
+	float  r =  Rs[gid];
+
+	// solve for the intersection using the quadratic formula:
+
+	. . .
+
+	. . .
+			// find out if it hits the infinite plate:
+			Hits[gid] = 0;
+			float t = ( 0. - ycir ) / outy;
+			if( t >= 0. )
+			{
+				Hits[gid] = 1;
+			}
+		}
+	}
+}
 
 
 // main program:
-int main(int argc, char* argv[])
+
+int
+main( int argc, char* argv[ ] )
 {
-	#ifndef _OPENMP
-		fprintf(stderr, "No OpenMP support!\n");
-		return 1;
-	#endif
+	float tn = tanf( (float)( (M_PI/180.) * 30. ) );
 
-	float tn = tan((M_PI / 180.) * 30.);
-	TimeOfDaySeed();		// seed the random number generator
+	TimeOfDaySeed( );
 
-	omp_set_num_threads(NUMT);	// set the number of threads to use in the for-loop:`
+	int dev = findCudaDevice(argc, (const char **)argv);
 
-	// better to define these here so that the rand() calls don't get into the thread timing:
-	float* xcs = new float[NUMTRIALS];
-	float* ycs = new float[NUMTRIALS];
-	float* rs = new float[NUMTRIALS];
+	// allocate host memory:
+
+	float *hXcs  = new float[NUMTRIALS];
+	float *hYcs  = new float[NUMTRIALS];
+	float * hRs  = new float[NUMTRIALS];
+	int   *hHits = new   int[NUMTRIALS];
 
 	// fill the random-value arrays:
-	for (int n = 0; n < NUMTRIALS; n++)
+	for( int n = 0; n < NUMTRIALS; n++ )
 	{
-		xcs[n] = Ranf(XCMIN, XCMAX);
-		ycs[n] = Ranf(YCMIN, YCMAX);
-		rs[n] = Ranf(RMIN, RMAX);
+		hXcs[n] = Ranf( XCMIN, XCMAX );
+		hYcs[n] = Ranf( YCMIN, YCMAX );
+ 		hRs[n]  = Ranf(  RMIN,  RMAX );
 	}
 
-	// get ready to record the maximum performance and the probability:
-	float maxPerformance = 0.;      // must be declared outside the NUMTRIES loop
-	float currentProb = 0.;              // must be declared outside the NUMTRIES loop
+	// allocate device memory:
 
-	// looking for the maximum performance:
-	for (int t = 0; t < NUMTRIES; t++)
+	float *dXcs, *dYcs, *dRs;
+	int *dHits;
+
+	dim3 dimsXcs(  NUMTRIALS, 1, 1 );
+	dim3 dimsYcs(  NUMTRIALS, 1, 1 );
+	dim3 dimsRs(   NUMTRIALS, 1, 1 );
+	dim3 dimsHits( NUMTRIALS, 1, 1 );
+
+
+	cudaError_t status;
+	status = cudaMalloc( (void **)(&dXcs), NUMTRIALS*sizeof(float) );
+	checkCudaErrors( status );
+
+	status = cudaMalloc( (void **)(&dYcs), NUMTRIALS*sizeof(float) );
+	checkCudaErrors( status );
+
+	status = cudaMalloc( (void **)(&dRs), NUMTRIALS*sizeof(float) );
+	checkCudaErrors( status );
+
+	status = cudaMalloc( (void **)(&dHits), NUMTRIALS *sizeof(int) );
+	checkCudaErrors( status );
+
+
+	// copy host memory to the device:
+
+	. . .
+
+	// setup the execution parameters:
+
+	dim3 threads(BLOCKSIZE, 1, 1 );
+	dim3 grid(NUMBLOCKS, 1, 1 );
+
+	// create and start timer
+
+	cudaDeviceSynchronize( );
+
+	// allocate CUDA events that we'll use for timing:
+
+	cudaEvent_t start, stop;
+	status = cudaEventCreate( &start );
+	checkCudaErrors( status );
+	status = cudaEventCreate( &stop );
+	checkCudaErrors( status );
+
+	// record the start event:
+
+	status = cudaEventRecord( start, NULL );
+	checkCudaErrors( status );
+
+	// execute the kernel:
+
+	MonteCarlo<<< grid, threads >>>( dXcs, dYcs, dRs, dHits );
+
+	// record the stop event:
+
+	status = cudaEventRecord( stop, NULL );
+	checkCudaErrors( status );
+
+	// wait for the stop event to complete:
+
+	status = cudaEventSynchronize( stop );
+	checkCudaErrors( status );
+
+	float msecTotal = 0.0f;
+	status = cudaEventElapsedTime( &msecTotal, start, stop );
+	checkCudaErrors( status );
+
+	// compute and print the performance
+
+	double secondsTotal = 0.001 * (double)msecTotal;
+	double trialsPerSecond = (float)NUMTRIALS / secondsTotal;
+	double megaTrialsPerSecond = trialsPerSecond / 1000000.;
+	fprintf( stderr, "Number of Trials = %10d, MegaTrials/Second = %10.4lf\n", NUMTRIALS, megaTrialsPerSecond );
+
+	// copy result from the device to the host:
+
+	. . .
+
+	// compute the probability:
+
+	int numHits = 0;
+	for(int i = 0; i < NUMTRIALS; i++ )
 	{
-		double time0 = omp_get_wtime();
-
-		int numHits = 0;
-
-		#pragma omp parallel for default(none) shared(xcs,ycs,rs,tn) reduction(+:numHits)
-		for (int n = 0; n < NUMTRIALS; n++)
-		{
-			// randomize the location and radius of the circle:
-			float xc = xcs[n];
-			float yc = ycs[n];
-			float  r = rs[n];
-
-			// solve for the intersection using the quadratic formula:
-			float a = 1. + tn * tn;
-			float b = -2. * (xc + yc * tn);
-			float c = xc * xc + yc * yc - r * r;
-			float d = b * b - 4. * a * c;
-
-			// If d is less than 0., then the circle was completely missed. 
-			// (Case A) Continue on to the next trial in the for-loop.
-			if (d < 0.0)
-				continue;
-
-			// hits the circle:
-			// get the first intersection:
-			d = sqrt(d);
-			float t1 = (-b + d) / (2. * a);	// time to intersect the circle
-			float t2 = (-b - d) / (2. * a);	// time to intersect the circle
-			float tmin = t1 < t2 ? t1 : t2;		// only care about the first intersection
-
-			// If tmin is less than 0., then the circle completely engulfs the laser pointer. 
-			// (Case B) Continue on to the next trial in the for-loop.
-			if (tmin < 0.0)
-				continue;
-
-			// where does it intersect the circle?
-			float xcir = tmin;
-			float ycir = tmin * tn;
-
-			// get the unitized normal vector at the point of intersection:
-			float nx = xcir - xc;
-			float ny = ycir - yc;
-			float nxy = sqrt(nx * nx + ny * ny);
-			nx /= nxy;	// unit vector
-			ny /= nxy;	// unit vector
-
-			// get the unitized incoming vector:
-			float inx = xcir - 0.;
-			float iny = ycir - 0.;
-			float in = sqrt(inx * inx + iny * iny);
-			inx /= in;	// unit vector
-			iny /= in;	// unit vector
-
-			// get the outgoing (bounced) vector:
-			float dot = inx * nx + iny * ny;
-			float outx = inx - 2. * nx * dot;	// angle of reflection = angle of incidence`
-			float outy = iny - 2. * ny * dot;	// angle of reflection = angle of incidence`
-
-			// find out if it hits the infinite plate:
-			float tt = (0. - ycir) / outy;
-
-			// If tt is less than 0., then the reflected beam went up instead of down. 
-			// Continue on to the next trial in the for-loop.
-			if (tt < 0.0)
-				continue;
-
-			// Otherwise, this beam hit the infinite plate. 
-			// (Case D) Increment the number of hits and continue on to the next trial in the for-loop.
-			numHits++;
-		}
-
-		double time1 = omp_get_wtime();
-		double megaTrialsPerSecond = (double)NUMTRIALS / (time1 - time0) / 1000000.;
-
-        // Prevent a divide by 0 infinite result from poluting the data
-        if (isfinite(megaTrialsPerSecond))
-        {  
-            if (megaTrialsPerSecond > maxPerformance)
-                maxPerformance = megaTrialsPerSecond;
-        }
-
-        // Calculate hit probability
-        currentProb = (float)numHits / (float)NUMTRIALS;
+		numHits += hHits[i];
 	}
 
-	// Print out: 
-	// (1) the number of threads, 
-	// (2) the number of trials, 
-	// (3) the probability of hitting the plate, and 
-	// (4) the MegaTrialsPerSecond. 
-	// Printing this as a single line with tabs between the numbers is nice so that you can import these lines right into Excel.
+	float probability = 100.f * (float)numHits / (float)NUMTRIALS;
+	fprintf(stderr, "\nProbability = %6.3f %%\n", probability );
 
-	printf("%.2f\t", maxPerformance);
+	// clean up memory:
+	delete [ ] hXcs;
+	delete [ ] hYcs;
+	delete [ ] hRs;
+	delete [ ] hHits;
 
-    return 0;
+	status = cudaFree( dXcs );
+	status = cudaFree( dYcs );
+	status = cudaFree( dRs );
+	status = cudaFree( dHits );
+	checkCudaErrors( status );
+
+	return 0;
 }
 
-// Helper Functions:
-
-// To choose a random number between two floats or two ints, use:
-
-
-float Ranf(float low, float high)
+float
+Ranf( float low, float high )
 {
-	float r = (float)rand();				// 0 - RAND_MAX
-	float t = r / (float)RAND_MAX;			// 0. - 1.
+	float r = (float) rand();               // 0 - RAND_MAX
+	float t = r  /  (float) RAND_MAX;       // 0. - 1.
 
-	return   low + t * (high - low);
+	return   low  +  t * ( high - low );
 }
 
-int Ranf(int ilow, int ihigh)
+int
+Ranf( int ilow, int ihigh )
 {
 	float low = (float)ilow;
-	float high = ceil((float)ihigh);
+	float high = ceil( (float)ihigh );
 
-	return (int)Ranf(low, high);
+	return (int) Ranf(low,high);
 }
 
-void TimeOfDaySeed()
+void
+TimeOfDaySeed( )
 {
 	struct tm y2k = { 0 };
 	y2k.tm_hour = 0;   y2k.tm_min = 0; y2k.tm_sec = 0;
 	y2k.tm_year = 100; y2k.tm_mon = 0; y2k.tm_mday = 1;
 
 	time_t  timer;
-	time(&timer);
-	double seconds = difftime(timer, mktime(&y2k));
-	unsigned int seed = (unsigned int)(1000. * seconds);    // milliseconds
-	srand(seed);
+	time( &timer );
+	double seconds = difftime( timer, mktime(&y2k) );
+	unsigned int seed = (unsigned int)( 1000.*seconds );    // milliseconds
+	srand( seed );
 }
-

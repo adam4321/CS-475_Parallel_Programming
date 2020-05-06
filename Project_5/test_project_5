@@ -23,7 +23,7 @@ printf "\nGathering the results...\n"
 printf "\t1000\t10000\t50000\t100000\t500000\t1000000\n" >> $OUTPUT_FILE
 
 # Iterate through the number of threads
-for t in 1 2 3 4 5 6
+for t in 32000 64000 128000 256000 512000
 do
     # Set the number of threads
     NUMT=$t
@@ -32,7 +32,7 @@ do
     printf "$NUMT\t" >> $OUTPUT_FILE
 
     # Iterate through the number of trials
-    for s in 1000 10000 50000 100000 500000 1000000
+    for s in 1024 5120 10240 51200 102400 512000 1024000
     do
         # Set the number of trials
         NUMTRIALS=$s
