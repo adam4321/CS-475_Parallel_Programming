@@ -45,17 +45,152 @@ const float YCMAX =	 2.0;
 const float RMIN  =	 0.5;
 const float RMAX  =	 2.0;
 
-// function prototypes:
-float		Ranf( float, float );
+/* FUNCTION PROTOTYPES ------------------------------------------------------*/
+
+__global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits );
+float	Ranf( float, float );
 int		Ranf( int, int );
-void		TimeOfDaySeed( );
+void	TimeOfDaySeed( );
 
 
+/* MAIN PROGRAM -------------------------------------------------------------*/
 
+int main( int argc, char* argv[ ] )
+{
+    // Output file
+    FILE *out_file = fopen("Project_5_Output.txt", "a");
+
+    // Seed the cuda random function
+	TimeOfDaySeed( );
+
+	int dev = findCudaDevice(argc, (const char **)argv);
+
+	// allocate host memory:
+	float *hXcs  = new float[NUMTRIALS];
+	float *hYcs  = new float[NUMTRIALS];
+	float * hRs  = new float[NUMTRIALS];
+	int   *hHits = new   int[NUMTRIALS];
+
+	// fill the random-value arrays:
+	for( int n = 0; n < NUMTRIALS; n++ )
+	{
+		hXcs[n] = Ranf( XCMIN, XCMAX );
+		hYcs[n] = Ranf( YCMIN, YCMAX );
+ 		hRs[n]  = Ranf(  RMIN,  RMAX );
+	}
+
+	// allocate device memory:
+	float *dXcs, *dYcs, *dRs;
+	int *dHits;
+
+	dim3 dimsXcs(  NUMTRIALS, 1, 1 );
+	dim3 dimsYcs(  NUMTRIALS, 1, 1 );
+	dim3 dimsRs(   NUMTRIALS, 1, 1 );
+	dim3 dimsHits( NUMTRIALS, 1, 1 );
+
+
+	cudaError_t status;
+	status = cudaMalloc( (void **)(&dXcs), NUMTRIALS*sizeof(float) );
+	checkCudaErrors( status );
+
+	status = cudaMalloc( (void **)(&dYcs), NUMTRIALS*sizeof(float) );
+	checkCudaErrors( status );
+
+	status = cudaMalloc( (void **)(&dRs), NUMTRIALS*sizeof(float) );
+	checkCudaErrors( status );
+
+	status = cudaMalloc( (void **)(&dHits), NUMTRIALS *sizeof(int) );
+	checkCudaErrors( status );
+
+
+	// copy host memory to the device:
+	status = cudaMemcpy(dXcs, hXcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(dYcs, hYcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(dRs, hRs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(dHits, hHits, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    checkCudaErrors( status );
+
+	// setup the execution parameters:
+	dim3 threads(BLOCKSIZE, 1, 1 );
+	dim3 grid(NUMBLOCKS, 1, 1 );
+
+	// create and start timer
+	cudaDeviceSynchronize( );
+
+	// allocate CUDA events that we'll use for timing:
+	cudaEvent_t start, stop;
+	status = cudaEventCreate( &start );
+	checkCudaErrors( status );
+	status = cudaEventCreate( &stop );
+	checkCudaErrors( status );
+
+	// record the start event:
+	status = cudaEventRecord( start, NULL );
+	checkCudaErrors( status );
+
+	// execute the kernel:
+	MonteCarlo<<< grid, threads >>>( dXcs, dYcs, dRs, dHits );
+
+	// record the stop event:
+	status = cudaEventRecord( stop, NULL );
+	checkCudaErrors( status );
+
+	// wait for the stop event to complete:
+	status = cudaEventSynchronize( stop );
+	checkCudaErrors( status );
+
+	float msecTotal = 0.0f;
+	status = cudaEventElapsedTime( &msecTotal, start, stop );
+	checkCudaErrors( status );
+
+	// compute and print the performance
+	double secondsTotal = 0.001 * (double)msecTotal;
+	double trialsPerSecond = (float)NUMTRIALS / secondsTotal;
+	double megaTrialsPerSecond = trialsPerSecond / 1000000.;
+	fprintf( out_file, "%10.2lf", megaTrialsPerSecond );
+
+	// copy result from the device to the host:
+    status = cudaMemcpy(hXcs, dXcs, NUMTRIALS*sizeof(float), cudaMemcpyDeviceToHost);
+    status = cudaMemcpy(hYcs, dYcs, NUMTRIALS*sizeof(float), cudaMemcpyDeviceToHost);
+    status = cudaMemcpy(hRs, dRs, NUMTRIALS*sizeof(float), cudaMemcpyDeviceToHost);
+    status = cudaMemcpy(hHits, dHits, NUMTRIALS*sizeof(float), cudaMemcpyDeviceToHost);
+    checkCudaErrors( status );
+
+	// compute the probability:
+	int numHits = 0;
+	for(int i = 0; i < NUMTRIALS; i++ )
+	{
+		numHits += hHits[i];
+	}
+
+	float probability = 100.f * (float)numHits / (float)NUMTRIALS;
+	fprintf(stderr, "\nProbability = %6.3f %%\n", probability );
+
+	// clean up memory:
+	delete [ ] hXcs;
+	delete [ ] hYcs;
+	delete [ ] hRs;
+	delete [ ] hHits;
+
+	status = cudaFree( dXcs );
+	status = cudaFree( dYcs );
+	status = cudaFree( dRs );
+	status = cudaFree( dHits );
+	checkCudaErrors( status );
+
+    fclose(out_file);
+
+	return 0;
+}
+
+
+/* FUNCTION DEFINITIONS -----------------------------------------------------*/
+
+// Monte Carlo Simulation function
 __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 {
     float tn = tanf( (float)( (M_PI/180.) * 30. ) );
-    
+
 	unsigned int wgNumber      = blockIdx.x;
 	unsigned int wgDimension   = blockDim.x;
 	unsigned int threadNum     = threadIdx.x;
@@ -113,7 +248,7 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 
     // get the outgoing (bounced) vector:
     float dot = inx * nx + iny * ny;
-    float outx = inx - 2. * nx * dot;	// angle of reflection = angle of incidence`
+    // float outx = inx - 2. * nx * dot;	// angle of reflection = angle of incidence`
     float outy = iny - 2. * ny * dot;	// angle of reflection = angle of incidence`
 	
     // find out if it hits the infinite plate:
@@ -125,146 +260,8 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 }
 
 
-// main program:
-
-int
-main( int argc, char* argv[ ] )
-{
-	TimeOfDaySeed( );
-
-	int dev = findCudaDevice(argc, (const char **)argv);
-
-	// allocate host memory:
-
-	float *hXcs  = new float[NUMTRIALS];
-	float *hYcs  = new float[NUMTRIALS];
-	float * hRs  = new float[NUMTRIALS];
-	int   *hHits = new   int[NUMTRIALS];
-
-	// fill the random-value arrays:
-	for( int n = 0; n < NUMTRIALS; n++ )
-	{
-		hXcs[n] = Ranf( XCMIN, XCMAX );
-		hYcs[n] = Ranf( YCMIN, YCMAX );
- 		hRs[n]  = Ranf(  RMIN,  RMAX );
-	}
-
-	// allocate device memory:
-
-	float *dXcs, *dYcs, *dRs;
-	int *dHits;
-
-	dim3 dimsXcs(  NUMTRIALS, 1, 1 );
-	dim3 dimsYcs(  NUMTRIALS, 1, 1 );
-	dim3 dimsRs(   NUMTRIALS, 1, 1 );
-	dim3 dimsHits( NUMTRIALS, 1, 1 );
-
-
-	cudaError_t status;
-	status = cudaMalloc( (void **)(&dXcs), NUMTRIALS*sizeof(float) );
-	checkCudaErrors( status );
-
-	status = cudaMalloc( (void **)(&dYcs), NUMTRIALS*sizeof(float) );
-	checkCudaErrors( status );
-
-	status = cudaMalloc( (void **)(&dRs), NUMTRIALS*sizeof(float) );
-	checkCudaErrors( status );
-
-	status = cudaMalloc( (void **)(&dHits), NUMTRIALS *sizeof(int) );
-	checkCudaErrors( status );
-
-
-	// copy host memory to the device:
-
-	status = cudaMemcpy(dXcs, hXcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    status = cudaMemcpy(dYcs, hYcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    status = cudaMemcpy(dRs, hRs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    status = cudaMemcpy(dHits, hHits, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    checkCudaErrors( status );
-
-	// setup the execution parameters:
-
-	dim3 threads(BLOCKSIZE, 1, 1 );
-	dim3 grid(NUMBLOCKS, 1, 1 );
-
-	// create and start timer
-
-	cudaDeviceSynchronize( );
-
-	// allocate CUDA events that we'll use for timing:
-
-	cudaEvent_t start, stop;
-	status = cudaEventCreate( &start );
-	checkCudaErrors( status );
-	status = cudaEventCreate( &stop );
-	checkCudaErrors( status );
-
-	// record the start event:
-
-	status = cudaEventRecord( start, NULL );
-	checkCudaErrors( status );
-
-	// execute the kernel:
-
-	MonteCarlo<<< grid, threads >>>( dXcs, dYcs, dRs, dHits );
-
-	// record the stop event:
-
-	status = cudaEventRecord( stop, NULL );
-	checkCudaErrors( status );
-
-	// wait for the stop event to complete:
-
-	status = cudaEventSynchronize( stop );
-	checkCudaErrors( status );
-
-	float msecTotal = 0.0f;
-	status = cudaEventElapsedTime( &msecTotal, start, stop );
-	checkCudaErrors( status );
-
-	// compute and print the performance
-
-	double secondsTotal = 0.001 * (double)msecTotal;
-	double trialsPerSecond = (float)NUMTRIALS / secondsTotal;
-	double megaTrialsPerSecond = trialsPerSecond / 1000000.;
-	fprintf( stderr, "Number of Trials = %10d, MegaTrials/Second = %10.4lf\n", NUMTRIALS, megaTrialsPerSecond );
-
-	// copy result from the device to the host:
-
-    status = cudaMemcpy(hXcs, dXcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    status = cudaMemcpy(hYcs, dYcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    status = cudaMemcpy(hRs, dRs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    status = cudaMemcpy(hHits, dHits, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
-    checkCudaErrors( status );
-
-	// compute the probability:
-
-	int numHits = 0;
-	for(int i = 0; i < NUMTRIALS; i++ )
-	{
-		numHits += hHits[i];
-	}
-
-	float probability = 100.f * (float)numHits / (float)NUMTRIALS;
-	fprintf(stderr, "\nProbability = %6.3f %%\n", probability );
-
-	// clean up memory:
-	delete [ ] hXcs;
-	delete [ ] hYcs;
-	delete [ ] hRs;
-	delete [ ] hHits;
-
-	status = cudaFree( dXcs );
-	status = cudaFree( dYcs );
-	status = cudaFree( dRs );
-	status = cudaFree( dHits );
-	checkCudaErrors( status );
-
-	return 0;
-}
-
-float
-Ranf( float low, float high )
+// Returns a random float between the passed in values
+float Ranf( float low, float high )
 {
 	float r = (float) rand();               // 0 - RAND_MAX
 	float t = r  /  (float) RAND_MAX;       // 0. - 1.
@@ -272,8 +269,9 @@ Ranf( float low, float high )
 	return   low  +  t * ( high - low );
 }
 
-int
-Ranf( int ilow, int ihigh )
+
+// Returns a random integer between the passed in values
+int Ranf( int ilow, int ihigh )
 {
 	float low = (float)ilow;
 	float high = ceil( (float)ihigh );
@@ -281,8 +279,9 @@ Ranf( int ilow, int ihigh )
 	return (int) Ranf(low,high);
 }
 
-void
-TimeOfDaySeed( )
+
+// Creates a seed for the simulation
+void TimeOfDaySeed( )
 {
 	struct tm y2k = { 0 };
 	y2k.tm_hour = 0;   y2k.tm_min = 0; y2k.tm_sec = 0;
