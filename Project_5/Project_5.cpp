@@ -61,6 +61,7 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 
 	// all the monte carlo stuff goes in here
 	// if we make it all the way through, then Hits[gid] = 1
+    Hits[gid] = 0;
 
 	// randomize the location and radius of the circle:
 	float xc = Xcs[gid];
@@ -68,19 +69,57 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 	float  r =  Rs[gid];
 
 	// solve for the intersection using the quadratic formula:
+    float a = 1. + tn * tn;
+    float b = -2. * (xc + yc * tn);
+    float c = xc * xc + yc * yc - r * r;
+    float d = b * b - 4. * a * c;
 
-	. . .
+    // If d is less than 0., then the circle was completely missed. 
+    // (Case A) Continue on to the next trial in the for-loop.
+    if (d < 0.0)
+        continue;
 
-	. . .
-			// find out if it hits the infinite plate:
-			Hits[gid] = 0;
-			float t = ( 0. - ycir ) / outy;
-			if( t >= 0. )
-			{
-				Hits[gid] = 1;
-			}
-		}
-	}
+    // hits the circle:
+    // get the first intersection:
+    d = sqrt(d);
+    float t1 = (-b + d) / (2. * a);	// time to intersect the circle
+    float t2 = (-b - d) / (2. * a);	// time to intersect the circle
+    float tmin = t1 < t2 ? t1 : t2;		// only care about the first intersection
+
+    // If tmin is less than 0., then the circle completely engulfs the laser pointer. 
+    // (Case B) Continue on to the next trial in the for-loop.
+    if (tmin < 0.0)
+        continue;
+
+    // where does it intersect the circle?
+    float xcir = tmin;
+    float ycir = tmin * tn;
+
+    // get the unitized normal vector at the point of intersection:
+    float nx = xcir - xc;
+    float ny = ycir - yc;
+    float nxy = sqrt(nx * nx + ny * ny);
+    nx /= nxy;	// unit vector
+    ny /= nxy;	// unit vector
+
+    // get the unitized incoming vector:
+    float inx = xcir - 0.;
+    float iny = ycir - 0.;
+    float in = sqrt(inx * inx + iny * iny);
+    inx /= in;	// unit vector
+    iny /= in;	// unit vector
+
+    // get the outgoing (bounced) vector:
+    float dot = inx * nx + iny * ny;
+    float outx = inx - 2. * nx * dot;	// angle of reflection = angle of incidence`
+    float outy = iny - 2. * ny * dot;	// angle of reflection = angle of incidence`
+	
+    // find out if it hits the infinite plate:
+    float t = ( 0. - ycir ) / outy;
+    if( t >= 0. )
+    {
+        Hits[gid] = 1;
+    }
 }
 
 
@@ -137,7 +176,11 @@ main( int argc, char* argv[ ] )
 
 	// copy host memory to the device:
 
-	. . .
+	status = cudaMemcpy(dXcs, hXcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(dYcs, hYcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(dRs, hRs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(dHits, hHits, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    checkCudaErrors( status );
 
 	// setup the execution parameters:
 
@@ -188,7 +231,11 @@ main( int argc, char* argv[ ] )
 
 	// copy result from the device to the host:
 
-	. . .
+    status = cudaMemcpy(hXcs, dXcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(hYcs, dYcs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(hRs, dRs, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    status = cudaMemcpy(hHits, dHits, NUMTRIALS*sizeof(float), cudaMemcpyHostToDevice);
+    checkCudaErrors( status );
 
 	// compute the probability:
 
