@@ -29,10 +29,10 @@ OUTPUT_FILE="Project_5_Output.txt"
 printf "\nGathering the results...\n"
 
 # Enter the column values for num trials into the output file
-printf "\t1024\t5120\t10240\t51200\t102400\t512000\t1024000\n" >> $OUTPUT_FILE
+printf "\t    16KB\t32KB\t  64KB\t  128KB\t  256KB\t    512KB\t  1MB\n" >> $OUTPUT_FILE
 
-# Iterate through the number of threads
-for t in 32 64 128 256 512
+# Iterate through the number of threads per block
+for t in 16 32 64 128
 do
     # Set the size of the cude blocks
     BLOCKSIZE=$t
@@ -41,7 +41,7 @@ do
     printf "$BLOCKSIZE\t" >> $OUTPUT_FILE
 
     # Iterate through the number of trials
-    for s in 1024 5120 10240 51200 102400 512000 1024000
+    for s in 16384 32768 65536 131072 262144 524288 1048576
     do
         # Set the number of trials
         NUMTRIALS=$s
@@ -54,10 +54,10 @@ do
 done
 
 # Print a description of the axes to the terminal
-printf "\n*******************************************\n"
-printf "**      CUDA Monte Carlo Simulation      **\n"
-printf "*******************************************\n\n"
-printf " NumTrials(Array Size) vs. MegaTrials / sec.\n\n"
+printf "\n        *******************************************\n"
+printf "        **      CUDA Monte Carlo Simulation      **\n"
+printf "        *******************************************\n\n"
+printf "        NumTrials(Array Size) vs. MegaTrials / sec.\n\n"
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE

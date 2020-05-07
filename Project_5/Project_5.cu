@@ -24,7 +24,7 @@
 #include "helper_cuda.h"
 
 
-// setting the number of trials in the monte carlo simulation:
+// setting the number of trials (array size) in the monte carlo simulation:
 #ifndef NUMTRIALS
 #define NUMTRIALS	( 1024*1024 )
 #endif
