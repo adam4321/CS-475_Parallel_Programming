@@ -54,10 +54,10 @@ do
 done
 
 # Print a description of the axes to the terminal
-printf "\n******************************************\n"
-printf "**      CUDA Monte Carlo Simulation     **\n"
+printf "\n*******************************************\n"
+printf "**      CUDA Monte Carlo Simulation      **\n"
 printf "*******************************************\n\n"
-printf " NumTrials (Array Size) vs. MegaTrials / sec.\n\n"
+printf " NumTrials(Array Size) vs. MegaTrials / sec.\n\n"
 
 # Print the output file contents to the terminal
 cat $OUTPUT_FILE

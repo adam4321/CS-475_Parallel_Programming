@@ -164,7 +164,7 @@ int main( int argc, char* argv[ ] )
 	}
 
 	float probability = 100.f * (float)numHits / (float)NUMTRIALS;
-	fprintf(stderr, "\nProbability = %6.3f %%\n", probability );
+	fprintf(stderr, "Probability = %6.3f\n", probability );
 
 	// clean up memory:
 	delete [ ] hXcs;
