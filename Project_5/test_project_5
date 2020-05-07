@@ -15,7 +15,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH -o Project_5.out
 #SBATCH -e Project_5.err
-#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=wrighada@oregonstate.edu
 
 CU_FILE="Project_5.cu"
