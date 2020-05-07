@@ -54,6 +54,8 @@ void		TimeOfDaySeed( );
 
 __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 {
+    float tn = tanf( (float)( (M_PI/180.) * 30. ) );
+    
 	unsigned int wgNumber      = blockIdx.x;
 	unsigned int wgDimension   = blockDim.x;
 	unsigned int threadNum     = threadIdx.x;
@@ -77,7 +79,7 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
     // If d is less than 0., then the circle was completely missed. 
     // (Case A) Continue on to the next trial in the for-loop.
     if (d < 0.0)
-        continue;
+        return;
 
     // hits the circle:
     // get the first intersection:
@@ -89,7 +91,7 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
     // If tmin is less than 0., then the circle completely engulfs the laser pointer. 
     // (Case B) Continue on to the next trial in the for-loop.
     if (tmin < 0.0)
-        continue;
+        return;
 
     // where does it intersect the circle?
     float xcir = tmin;
@@ -128,8 +130,6 @@ __global__  void MonteCarlo( float *Xcs, float *Ycs, float *Rs, int *Hits )
 int
 main( int argc, char* argv[ ] )
 {
-	float tn = tanf( (float)( (M_PI/180.) * 30. ) );
-
 	TimeOfDaySeed( );
 
 	int dev = findCudaDevice(argc, (const char **)argv);
