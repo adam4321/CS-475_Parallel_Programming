@@ -3,10 +3,10 @@
 **  Email:        wrighada@oregonstate.edu
 **  Date:         5-5-2020
 **  Description:  Program 5 for OSU cs-475 Parallel Programming. The program
-**                uses OpenMP and is a test of the performance of a Monte Carlo
-**                simulation where the number of operations per second is
-**                compared against the thread count and the number of trials
-**                in the simulation. 
+**                cuda to run the simulation on an nvidia gpu. It is a test 
+**                of the performance of a Monte Carlo simulation where the
+**                number of operations per second is compared against the
+**                thread count and the number of trials in the simulation.          
 ******************************************************************************/
 
 // System includes
