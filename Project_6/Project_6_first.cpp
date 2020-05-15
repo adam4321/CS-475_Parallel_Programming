@@ -8,12 +8,12 @@
 **                reduction.         
 ******************************************************************************/
 
-// 1. Program header
 
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -26,38 +26,38 @@
 
 
 #ifndef NMB
-#define	NMB			64
+#define	NMB     64
 #endif
 
-#define NUM_ELEMENTS		NMB*1024*1024
+#define NUM_ELEMENTS    NMB*1024*1024
 
 #ifndef LOCAL_SIZE
-#define	LOCAL_SIZE		64
+#define	LOCAL_SIZE      64
 #endif
 
 #define	NUM_WORK_GROUPS		NUM_ELEMENTS/LOCAL_SIZE
 
-const char *			CL_FILE_NAME = { "first.cl" };
-const float			TOL = 0.0001f;
 
-void				Wait( cl_command_queue );
-int				LookAtTheBits( float );
+const char *CL_FILE_NAME = { "first.cl" };
+const float	TOL = 0.0001f;
+
+void Wait( cl_command_queue );
+int	LookAtTheBits( float );
 
 
-int
-main( int argc, char *argv[ ] )
+int main( int argc, char *argv[ ] )
 {
 	// see if we can even open the opencl kernel program
 	// (no point going on if we can't):
 
 	FILE *fp;
-#ifdef WIN32
-	errno_t err = fopen_s( &fp, CL_FILE_NAME, "r" );
-	if( err != 0 )
-#else
-	fp = fopen( CL_FILE_NAME, "r" );
-	if( fp == NULL )
-#endif
+    #ifdef WIN32
+        errno_t err = fopen_s( &fp, CL_FILE_NAME, "r" );
+        if( err != 0 )
+    #else
+        fp = fopen( CL_FILE_NAME, "r" );
+        if( fp == NULL )
+    #endif
 	{
 		fprintf( stderr, "Cannot open OpenCL source file '%s'\n", CL_FILE_NAME );
 		return 1;
@@ -229,9 +229,9 @@ main( int argc, char *argv[ ] )
 	fprintf( stderr, "%8d\t%4d\t%10d\t%10.3lf GigaMultsPerSecond\n",
 		NMB, LOCAL_SIZE, NUM_WORK_GROUPS, (double)NUM_ELEMENTS/(time1-time0)/1000000000. );
 
-#ifdef WIN32
-	Sleep( 2000 );
-#endif
+    #ifdef WIN32
+        Sleep( 2000 );
+    #endif
 
 
 	// 13. clean everything up:
@@ -251,8 +251,7 @@ main( int argc, char *argv[ ] )
 }
 
 
-int
-LookAtTheBits( float fp )
+int LookAtTheBits( float fp )
 {
 	int *ip = (int *)&fp;
 	return *ip;
@@ -260,9 +259,7 @@ LookAtTheBits( float fp )
 
 
 // wait until all queued tasks have taken place:
-
-void
-Wait( cl_command_queue queue )
+void Wait( cl_command_queue queue )
 {
       cl_event wait;
       cl_int      status;
