@@ -41,9 +41,14 @@
 const char *CL_FILE_NAME = { "first.cl" };
 const float	TOL = 0.0001f;
 
+
+/* FUNCTION DECLARATIONS ----------------------------------------------------*/
+
 void Wait( cl_command_queue );
 int	LookAtTheBits( float );
 
+
+/* MAIN FUNCTION ------------------------------------------------------------*/
 
 int main( int argc, char *argv[ ] )
 {
@@ -64,21 +69,26 @@ int main( int argc, char *argv[ ] )
 	}
 
 	cl_int status;		// returned status from opencl calls
-				// test against CL_SUCCESS
+	
+    // test against CL_SUCCESS
 
 	// get the platform id:
 
 	cl_platform_id platform;
 	status = clGetPlatformIDs( 1, &platform, NULL );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clGetPlatformIDs failed (2)\n" );
+	{
+        fprintf( stderr, "clGetPlatformIDs failed (2)\n" );
+    }
 	
 	// get the device id:
 
 	cl_device_id device;
 	status = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clGetDeviceIDs failed (2)\n" );
+	{
+        fprintf( stderr, "clGetDeviceIDs failed (2)\n" );
+    }
 
 	// 2. allocate the host memory buffers:
 
@@ -99,37 +109,51 @@ int main( int argc, char *argv[ ] )
 
 	cl_context context = clCreateContext( NULL, 1, &device, NULL, NULL, &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateContext failed\n" );
+	{
+        fprintf( stderr, "clCreateContext failed\n" );
+    }
 
 	// 4. create an opencl command queue:
 
 	cl_command_queue cmdQueue = clCreateCommandQueue( context, device, 0, &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateCommandQueue failed\n" );
+	{
+        fprintf( stderr, "clCreateCommandQueue failed\n" );
+    }
 
 	// 5. allocate the device memory buffers:
 
 	cl_mem dA = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateBuffer failed (1)\n" );
+	{
+        fprintf( stderr, "clCreateBuffer failed (1)\n" );
+    }
 
 	cl_mem dB = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateBuffer failed (2)\n" );
+	{
+        fprintf( stderr, "clCreateBuffer failed (2)\n" );
+    }
 
 	cl_mem dC = clCreateBuffer( context, CL_MEM_WRITE_ONLY, dataSize, NULL, &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateBuffer failed (3)\n" );
+	{
+        fprintf( stderr, "clCreateBuffer failed (3)\n" );
+    }
 
 	// 6. enqueue the 2 commands to write the data from the host buffers to the device buffers:
 
 	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, dataSize, hA, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clEnqueueWriteBuffer failed (1)\n" );
+	{
+        fprintf( stderr, "clEnqueueWriteBuffer failed (1)\n" );
+    }
 
 	status = clEnqueueWriteBuffer( cmdQueue, dB, CL_FALSE, 0, dataSize, hB, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clEnqueueWriteBuffer failed (2)\n" );
+	{
+        fprintf( stderr, "clEnqueueWriteBuffer failed (2)\n" );
+    }
 
 	Wait( cmdQueue );
 
@@ -143,7 +167,9 @@ int main( int argc, char *argv[ ] )
 	clProgramText[fileSize] = '\0';
 	fclose( fp );
 	if( n != fileSize )
-		fprintf( stderr, "Expected to read %d bytes read from '%s' -- actually read %d.\n", fileSize, CL_FILE_NAME, n );
+	{
+        fprintf( stderr, "Expected to read %d bytes read from '%s' -- actually read %d.\n", fileSize, CL_FILE_NAME, n );
+    }
 
 	// create the text for the kernel program:
 
@@ -151,7 +177,9 @@ int main( int argc, char *argv[ ] )
 	strings[0] = clProgramText;
 	cl_program program = clCreateProgramWithSource( context, 1, (const char **)strings, NULL, &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateProgramWithSource failed\n" );
+	{
+        fprintf( stderr, "clCreateProgramWithSource failed\n" );
+    }
 	delete [ ] clProgramText;
 
 	// 8. compile and link the kernel code:
@@ -172,21 +200,29 @@ int main( int argc, char *argv[ ] )
 
 	cl_kernel kernel = clCreateKernel( program, "ArrayMult", &status );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clCreateKernel failed\n" );
+	{
+        fprintf( stderr, "clCreateKernel failed\n" );
+    }
 
 	// 10. setup the arguments to the kernel object:
 
 	status = clSetKernelArg( kernel, 0, sizeof(cl_mem), &dA );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clSetKernelArg failed (1)\n" );
+	{
+        fprintf( stderr, "clSetKernelArg failed (1)\n" );
+    }
 
 	status = clSetKernelArg( kernel, 1, sizeof(cl_mem), &dB );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clSetKernelArg failed (2)\n" );
+	{
+        fprintf( stderr, "clSetKernelArg failed (2)\n" );
+    }
 
 	status = clSetKernelArg( kernel, 2, sizeof(cl_mem), &dC );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clSetKernelArg failed (3)\n" );
+	{
+        fprintf( stderr, "clSetKernelArg failed (3)\n" );
+    }
 
 
 	// 11. enqueue the kernel object for execution:
@@ -201,7 +237,9 @@ int main( int argc, char *argv[ ] )
 
 	status = clEnqueueNDRangeKernel( cmdQueue, kernel, 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
-		fprintf( stderr, "clEnqueueNDRangeKernel failed: %d\n", status );
+	{
+        fprintf( stderr, "clEnqueueNDRangeKernel failed: %d\n", status );
+    }
 
 	Wait( cmdQueue );
 	double time1 = omp_get_wtime( );
@@ -210,7 +248,9 @@ int main( int argc, char *argv[ ] )
 
 	status = clEnqueueReadBuffer( cmdQueue, dC, CL_TRUE, 0, dataSize, hC, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
-			fprintf( stderr, "clEnqueueReadBuffer failed\n" );
+	{
+        fprintf( stderr, "clEnqueueReadBuffer failed\n" );
+    }
 
 	// did it work?
 
@@ -251,24 +291,30 @@ int main( int argc, char *argv[ ] )
 }
 
 
-int LookAtTheBits( float fp )
-{
-	int *ip = (int *)&fp;
-	return *ip;
-}
-
+/* FUNCTION DEFINITIONS -----------------------------------------------------*/
 
 // wait until all queued tasks have taken place:
 void Wait( cl_command_queue queue )
 {
-      cl_event wait;
-      cl_int      status;
+    cl_event wait;
+    cl_int      status;
 
-      status = clEnqueueMarker( queue, &wait );
-      if( status != CL_SUCCESS )
-	      fprintf( stderr, "Wait: clEnqueueMarker failed\n" );
+    status = clEnqueueMarker( queue, &wait );
+    if( status != CL_SUCCESS )
+    {
+        fprintf( stderr, "Wait: clEnqueueMarker failed\n" );
+    }
 
-      status = clWaitForEvents( 1, &wait );
-      if( status != CL_SUCCESS )
-	      fprintf( stderr, "Wait: clWaitForEvents failed\n" );
+    status = clWaitForEvents( 1, &wait );
+    if( status != CL_SUCCESS )
+    {
+        fprintf( stderr, "Wait: clWaitForEvents failed\n" );
+    }
+}
+
+
+int LookAtTheBits( float fp )
+{
+	int *ip = (int *)&fp;
+	return *ip;
 }
