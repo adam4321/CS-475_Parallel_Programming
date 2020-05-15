@@ -1,3 +1,13 @@
+/******************************************************************************
+**  Authors:      Professor Mike Bailey, Adam Wright
+**  Email:        wrighada@oregonstate.edu
+**  Date:         5-14-2020
+**  Description:  Program 6 for OSU cs-475 Parallel Programming. The program
+**                uses OpenCL to test the performance of array multiplication,
+**                multiplication with addition, and multiplication with 
+**                reduction.         
+******************************************************************************/
+
 // 1. Program header
 
 #include <stdio.h>
