@@ -1,0 +1,63 @@
+#!/bin/bash
+
+###############################################################################
+##  Author:       Adam Wright
+##  Date:         5/14/2020
+##  Course:       OSU cs-475
+##  Project:      Project 6
+##  Description:  Script to compile and run project 6 with NVCC while using a
+##                range of values for the #defines BLOCKSIZE, NUMTRIALS.
+###############################################################################
+
+#SBATCH -J Project_6
+#SBATCH -A cs475-575
+#SBATCH -p class
+#SBATCH --gres=gpu:1
+#SBATCH -o Project_6.out
+#SBATCH -e Project_6.err
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=wrighada@oregonstate.edu
+
+CU_FILE="Project_6.cu"
+EXECUTABLE="Project_6"
+OUTPUT_FILE="Project_6_Output.txt"
+
+# Clear the test file
+> $OUTPUT_FILE
+
+# Message to user while results are gathered
+printf "\nGathering the results...\n"
+
+# Enter the column values for num trials into the output file
+printf "\t    16KB\t32KB\t  64KB\t  128KB\t  256KB\t    512KB\t  1MB\n" >> $OUTPUT_FILE
+
+# Iterate through the number of threads per block
+for t in 16 32 64 128
+do
+    # Set the size of the cude blocks
+    BLOCKSIZE=$t
+
+    # Enter the thread count into the start of each row of the file
+    printf "$BLOCKSIZE\t" >> $OUTPUT_FILE
+
+    # Iterate through the number of trials
+    for s in 16384 32768 65536 131072 262144 524288 1048576
+    do
+        # Set the number of trials
+        NUMTRIALS=$s
+
+        # Compile and run with the currently set values and record the results
+        /usr/local/apps/cuda/cuda-10.1/bin/nvcc -DBLOCKSIZE=$t -DNUMTRIALS=$s $CU_FILE -o $EXECUTABLE
+        ./$EXECUTABLE
+    done
+    printf "\n" >> $OUTPUT_FILE
+done
+
+# Print a description of the axes to the terminal
+printf "\n        *******************************************\n"
+printf "        **      CUDA Array Manipulation test       **\n"
+printf "        *******************************************\n\n"
+printf "        NumTrials(Array Size) vs. MegaTrials / sec.\n\n"
+
+# Print the output file contents to the terminal
+cat $OUTPUT_FILE
