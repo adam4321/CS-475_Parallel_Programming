@@ -38,7 +38,7 @@
 #define	NUM_WORK_GROUPS		NUM_ELEMENTS/LOCAL_SIZE
 
 
-const char *CL_FILE_NAME = { "first.cl" };
+const char *CL_FILE_NAME = { "Project_6.cl" };
 const float	TOL = 0.0001f;
 
 
