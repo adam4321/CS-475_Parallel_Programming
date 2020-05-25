@@ -5,8 +5,8 @@
 ##  Date:         5/14/2020
 ##  Course:       OSU cs-475
 ##  Project:      Project 6
-##  Description:  Script to compile and run project 6 with NVCC while using a
-##                range of values for the #defines BLOCKSIZE, NUMTRIALS.
+##  Description:  Script to compile and run project 6 with OpenCL while using a
+##                range of values for the #defines LOCAL_SIZE, NUM.
 ###############################################################################
 
 #SBATCH -J Project_6
@@ -20,16 +20,20 @@
 
 CPP_FILE="Project_6.cpp"
 EXECUTABLE="Project_6"
-OUTPUT_FILE="Project_6_Output.txt"
+OUTPUT_FILE_MULT="Project_6_Mult_Output.txt"
+OUTPUT_FILE_ADD="Project_6_Add_Output.txt"
 
-# Clear the test file
-> $OUTPUT_FILE
+# Clear the test files
+> $OUTPUT_FILE_MULT
+> $OUTPUT_FILE_ADD
 
 # Message to user while results are gathered
-printf "\nGathering the results...\n"
+printf "\nGathering the multiplication results...\n\n"
 
+
+# GATHER AND OUTPUT ARRAY MULTIPLICATION TO FILE ------------------------------
 # Enter the column values for num trials into the output file
-printf "\t    16KB\t32KB\t  64KB\t  128KB\t  256KB\t    512KB\t  1MB\n" >> $OUTPUT_FILE
+printf "        1KB\t 4KB\t 32KB\t 256KB\t 1MB\t 2MB\t 4MB\t 8MB\n" >> $OUTPUT_FILE_MULT
 
 # Iterate through the number of threads per block
 for t in 8 32 64 128 256 512
@@ -38,7 +42,7 @@ do
     LOCAL_SIZE=$t
 
     # Enter the thread count into the start of each row of the file
-    printf "$LOCAL_SIZE\t" >> $OUTPUT_FILE
+    printf "$LOCAL_SIZE\t" >> $OUTPUT_FILE_MULT
 
     # Iterate through the number of trials
     for s in 16 64 512 4096 16384 32768 65536 131072
@@ -47,17 +51,57 @@ do
         NUM=$s
 
         # Compile and run with the currently set values and record the results
-        g++ -o $EXECUTABLE $CPP_FILE -DLOCAL_SIZE=$t -DNUM=$s /usr/local/apps/cuda/cuda-10.1/lib64/libOpenCL.so.1.1 -lm -fopenmp
-        ./$EXECUTABLE >> $OUTPUT_FILE
+        g++ -o $EXECUTABLE $CPP_FILE -D LOCAL_SIZE=$t -D NUM=$s /usr/local/apps/cuda/cuda-10.1/lib64/libOpenCL.so.1.1 -lm -fopenmp
+        ./$EXECUTABLE >> $OUTPUT_FILE_MULT
     done
-    printf "\n" >> $OUTPUT_FILE
+    printf "\n" >> $OUTPUT_FILE_MULT
 done
 
 # Print a description of the axes to the terminal
-printf "\n        *******************************************\n"
-printf "        **      CUDA Array Manipulation test       **\n"
+printf "        *******************************************\n"
+printf "        **     CUDA Array Multiplication test    **\n"
 printf "        *******************************************\n\n"
-printf "          NMB(Array Size) vs. MegaTrials / sec.\n\n"
+printf "           NMB(Array Size) vs. GigaMults / sec.\n\n"
 
-# Print the output file contents to the terminal
-cat $OUTPUT_FILE
+# Print the multiplication file contents to the terminal
+cat $OUTPUT_FILE_MULT
+
+# Message to user while results are gathered
+printf "\nGathering the mult-add results...\n\n"
+
+
+# GATHER AND PRINT ARRAY MULT ADD TO FILE -------------------------------------
+# Enter the column values for num trials into the output file
+printf "        1KB\t 4KB\t 32KB\t 256KB\t 1MB\t 2MB\t 4MB\t 8MB\n" >> $OUTPUT_FILE_ADD
+
+# Iterate through the number of threads per block
+for t in 8 32 64 128 256 512
+do
+    # Set the size of the cude blocks
+    LOCAL_SIZE=$t
+
+    # Enter the thread count into the start of each row of the file
+    printf "$LOCAL_SIZE\t" >> $OUTPUT_FILE_ADD
+
+    # Iterate through the number of trials
+    for s in 16 64 512 4096 16384 32768 65536 131072
+    do
+        # Set the number of trials
+        NUM=$s
+
+        # Compile and run with the currently set values and record the results
+        g++ -o $EXECUTABLE $CPP_FILE -D LOCAL_SIZE=$t -D NUM=$s -D CL_ARR_FUNC=\"ArrayMultAdd\" /usr/local/apps/cuda/cuda-10.1/lib64/libOpenCL.so.1.1 -lm -fopenmp
+        ./$EXECUTABLE >> $OUTPUT_FILE_ADD
+    done
+    printf "\n" >> $OUTPUT_FILE_ADD
+done
+
+# Print a description of the axes to the terminal
+printf "        *******************************************\n"
+printf "        **        CUDA Array Mult-Add test       **\n"
+printf "        *******************************************\n\n"
+printf "           NMB(Array Size) vs. GigaMults / sec.\n\n"
+
+# Print the mult-add file contents to the terminal
+cat $OUTPUT_FILE_ADD
+printf "\n"

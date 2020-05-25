@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <math.h>
-#include <string.h>
+#include <string>
 #include <stdlib.h>
 
 #ifdef WIN32
@@ -24,6 +24,9 @@
 #include "cl.h"
 #include "cl_platform.h"
 
+#ifndef CL_ARR_FUNC
+#define CL_ARR_FUNC     "ArrayMult"
+#endif
 
 #ifndef NMB
 #define	NMB     64
@@ -98,6 +101,7 @@ int main( int argc, char *argv[ ] )
 	float *hA = new float[ NUM_ELEMENTS ];
 	float *hB = new float[ NUM_ELEMENTS ];
 	float *hC = new float[ NUM_ELEMENTS ];
+    float *hD = new float[ NUM_ELEMENTS ];
 
 	// fill the host memory buffers:
 	for( int i = 0; i < NUM_ELEMENTS; i++ )
@@ -144,6 +148,16 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "clCreateBuffer failed (3)\n" );
     }
 
+    // 4th argument for ArrayMultAdd
+    if (CL_ARR_FUNC == "ArrayMultAdd")
+    {
+        cl_mem dD = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
+        if( status != CL_SUCCESS )
+        {
+            fprintf( stderr, "clCreateBuffer failed (4)\n" );
+        }
+    }
+
 
 	// 6. enqueue the 2 commands to write the data from the host buffers to the device buffers:
 	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, dataSize, hA, 0, NULL, NULL );
@@ -187,7 +201,8 @@ int main( int argc, char *argv[ ] )
 
 
 	// 8. compile and link the kernel code:
-	char *options = { "" };
+	// char *options = { "" };
+    char *options = NULL;
 	status = clBuildProgram( program, 1, &device, options, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
@@ -201,7 +216,7 @@ int main( int argc, char *argv[ ] )
 
 
 	// 9. create the kernel object:
-	cl_kernel kernel = clCreateKernel( program, "ArrayMult", &status );
+	cl_kernel kernel = clCreateKernel( program, CL_ARR_FUNC, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateKernel failed\n" );
@@ -225,6 +240,16 @@ int main( int argc, char *argv[ ] )
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clSetKernelArg failed (3)\n" );
+    }
+
+    // 4th argument for ArrayMultAdd
+    if (CL_ARR_FUNC == "ArrayMultAdd")
+    {
+        status = clSetKernelArg( kernel, 3, sizeof(cl_mem), &dC );
+        if( status != CL_SUCCESS )
+        {
+            fprintf( stderr, "clSetKernelArg failed (4)\n" );
+        }
     }
 
 
@@ -268,8 +293,12 @@ int main( int argc, char *argv[ ] )
 		}
 	}
 
-	fprintf( stdout, "%8d\t%4d\t%10d\t%10.3lf GigaMultsPerSecond\n",
-		NMB, LOCAL_SIZE, NUM_WORK_GROUPS, (double)NUM_ELEMENTS/(time1-time0)/1000000000. );
+    // // Testing print statement
+	// fprintf( stdout, "%8d\t%4d\t%10d\t%10.3lf GigaMultsPerSecond\n",
+	// 	NMB, LOCAL_SIZE, NUM_WORK_GROUPS, (double)NUM_ELEMENTS/(time1-time0)/1000000000. );
+
+    // Print GigaMultsPerSecond
+    printf("%4.3lf\t", (double)NUM_ELEMENTS/(time1-time0)/1000000000.);
 
     #ifdef WIN32
         Sleep( 2000 );
@@ -287,6 +316,7 @@ int main( int argc, char *argv[ ] )
 	delete [ ] hA;
 	delete [ ] hB;
 	delete [ ] hC;
+    delete [ ] hD;
 
 	return 0;
 }
