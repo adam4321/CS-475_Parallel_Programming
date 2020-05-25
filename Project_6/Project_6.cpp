@@ -29,7 +29,11 @@
 #define	NMB     64
 #endif
 
-#define NUM_ELEMENTS    NMB*1024*1024
+#ifndef NUM
+#define NUM     ( 1024 * 1024 )
+#endif
+
+#define NUM_ELEMENTS    NMB * NUM
 
 #ifndef LOCAL_SIZE
 #define	LOCAL_SIZE      64
@@ -54,7 +58,6 @@ int main( int argc, char *argv[ ] )
 {
 	// see if we can even open the opencl kernel program
 	// (no point going on if we can't):
-
 	FILE *fp;
     #ifdef WIN32
         errno_t err = fopen_s( &fp, CL_FILE_NAME, "r" );
@@ -70,10 +73,10 @@ int main( int argc, char *argv[ ] )
 
 	cl_int status;		// returned status from opencl calls
 	
+
     // test against CL_SUCCESS
 
 	// get the platform id:
-
 	cl_platform_id platform;
 	status = clGetPlatformIDs( 1, &platform, NULL );
 	if( status != CL_SUCCESS )
@@ -81,8 +84,8 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "clGetPlatformIDs failed (2)\n" );
     }
 	
-	// get the device id:
 
+	// get the device id:
 	cl_device_id device;
 	status = clGetDeviceIDs( platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL );
 	if( status != CL_SUCCESS )
@@ -90,14 +93,13 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "clGetDeviceIDs failed (2)\n" );
     }
 
-	// 2. allocate the host memory buffers:
 
+	// 2. allocate the host memory buffers:
 	float *hA = new float[ NUM_ELEMENTS ];
 	float *hB = new float[ NUM_ELEMENTS ];
 	float *hC = new float[ NUM_ELEMENTS ];
 
 	// fill the host memory buffers:
-
 	for( int i = 0; i < NUM_ELEMENTS; i++ )
 	{
 		hA[i] = hB[i] = (float) sqrt(  (double)i  );
@@ -105,29 +107,30 @@ int main( int argc, char *argv[ ] )
 
 	size_t dataSize = NUM_ELEMENTS * sizeof(float);
 
-	// 3. create an opencl context:
 
+	// 3. create an opencl context:
 	cl_context context = clCreateContext( NULL, 1, &device, NULL, NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateContext failed\n" );
     }
 
-	// 4. create an opencl command queue:
 
+	// 4. create an opencl command queue:
 	cl_command_queue cmdQueue = clCreateCommandQueue( context, device, 0, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateCommandQueue failed\n" );
     }
 
-	// 5. allocate the device memory buffers:
 
+	// 5. allocate the device memory buffers:
 	cl_mem dA = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateBuffer failed (1)\n" );
     }
+
 
 	cl_mem dB = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
 	if( status != CL_SUCCESS )
@@ -141,8 +144,8 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "clCreateBuffer failed (3)\n" );
     }
 
-	// 6. enqueue the 2 commands to write the data from the host buffers to the device buffers:
 
+	// 6. enqueue the 2 commands to write the data from the host buffers to the device buffers:
 	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, dataSize, hA, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
@@ -157,8 +160,8 @@ int main( int argc, char *argv[ ] )
 
 	Wait( cmdQueue );
 
-	// 7. read the kernel code from a file:
 
+	// 7. read the kernel code from a file:
 	fseek( fp, 0, SEEK_END );
 	size_t fileSize = ftell( fp );
 	fseek( fp, 0, SEEK_SET );
@@ -171,8 +174,8 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "Expected to read %d bytes read from '%s' -- actually read %d.\n", fileSize, CL_FILE_NAME, n );
     }
 
-	// create the text for the kernel program:
 
+	// create the text for the kernel program:
 	char *strings[1];
 	strings[0] = clProgramText;
 	cl_program program = clCreateProgramWithSource( context, 1, (const char **)strings, NULL, &status );
@@ -182,8 +185,8 @@ int main( int argc, char *argv[ ] )
     }
 	delete [ ] clProgramText;
 
-	// 8. compile and link the kernel code:
 
+	// 8. compile and link the kernel code:
 	char *options = { "" };
 	status = clBuildProgram( program, 1, &device, options, NULL, NULL );
 	if( status != CL_SUCCESS )
@@ -196,16 +199,16 @@ int main( int argc, char *argv[ ] )
 		delete [ ] log;
 	}
 
-	// 9. create the kernel object:
 
+	// 9. create the kernel object:
 	cl_kernel kernel = clCreateKernel( program, "ArrayMult", &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateKernel failed\n" );
     }
 
-	// 10. setup the arguments to the kernel object:
 
+	// 10. setup the arguments to the kernel object:
 	status = clSetKernelArg( kernel, 0, sizeof(cl_mem), &dA );
 	if( status != CL_SUCCESS )
 	{
@@ -226,7 +229,6 @@ int main( int argc, char *argv[ ] )
 
 
 	// 11. enqueue the kernel object for execution:
-
 	size_t globalWorkSize[3] = { NUM_ELEMENTS, 1, 1 };
 	size_t localWorkSize[3]  = { LOCAL_SIZE,   1, 1 };
 
@@ -244,16 +246,16 @@ int main( int argc, char *argv[ ] )
 	Wait( cmdQueue );
 	double time1 = omp_get_wtime( );
 
-	// 12. read the results buffer back from the device to the host:
 
+	// 12. read the results buffer back from the device to the host:
 	status = clEnqueueReadBuffer( cmdQueue, dC, CL_TRUE, 0, dataSize, hC, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueReadBuffer failed\n" );
     }
 
-	// did it work?
 
+	// did it work?
 	for( int i = 0; i < NUM_ELEMENTS; i++ )
 	{
 		float expected = hA[i] * hB[i];
@@ -266,7 +268,7 @@ int main( int argc, char *argv[ ] )
 		}
 	}
 
-	fprintf( stderr, "%8d\t%4d\t%10d\t%10.3lf GigaMultsPerSecond\n",
+	fprintf( stdout, "%8d\t%4d\t%10d\t%10.3lf GigaMultsPerSecond\n",
 		NMB, LOCAL_SIZE, NUM_WORK_GROUPS, (double)NUM_ELEMENTS/(time1-time0)/1000000000. );
 
     #ifdef WIN32
@@ -275,7 +277,6 @@ int main( int argc, char *argv[ ] )
 
 
 	// 13. clean everything up:
-
 	clReleaseKernel(        kernel   );
 	clReleaseProgram(       program  );
 	clReleaseCommandQueue(  cmdQueue );
