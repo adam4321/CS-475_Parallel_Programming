@@ -9,12 +9,12 @@
 ##                range of values for the #defines LOCAL_SIZE, NUM.
 ###############################################################################
 
-#SBATCH -J Project_6
+#SBATCH -J Project_6_reduce
 #SBATCH -A cs475-575
 #SBATCH -p class
 #SBATCH --gres=gpu:1
-#SBATCH -o Project_6.out
-#SBATCH -e Project_6.err
+#SBATCH -o Project_6_reduce.out
+#SBATCH -e Project_6_reduce.err
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=wrighada@oregonstate.edu
 
