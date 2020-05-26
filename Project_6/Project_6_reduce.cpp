@@ -108,7 +108,8 @@ int main( int argc, char *argv[ ] )
 		hA[i] = hB[i] = (float) sqrt(  (double)i  );
 	}
 
-	size_t dataSize = NUM_ELEMENTS * sizeof(float);
+	size_t abSize = NUM_ELEMENTS * sizeof(float);
+    size_t cSize = NUM_WORK_GROUPS * sizeof(float);
 
 
 	// 3. create an opencl context:
@@ -128,20 +129,19 @@ int main( int argc, char *argv[ ] )
 
 
 	// 5. allocate the device memory buffers:
-	cl_mem dA = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
+	cl_mem dA = clCreateBuffer( context, CL_MEM_READ_ONLY,  abSize, NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateBuffer failed (1)\n" );
     }
 
-
-	cl_mem dB = clCreateBuffer( context, CL_MEM_READ_ONLY,  dataSize, NULL, &status );
+	cl_mem dB = clCreateBuffer( context, CL_MEM_READ_ONLY,  abSize, NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateBuffer failed (2)\n" );
     }
 
-	cl_mem dC = clCreateBuffer( context, CL_MEM_WRITE_ONLY, dataSize, NULL, &status );
+	cl_mem dC = clCreateBuffer( context, CL_MEM_WRITE_ONLY, cSize, NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateBuffer failed (3)\n" );
@@ -149,13 +149,13 @@ int main( int argc, char *argv[ ] )
 
 
 	// 6. enqueue the 2 commands to write the data from the host buffers to the device buffers:
-	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, dataSize, hA, 0, NULL, NULL );
+	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, abSize, hA, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueWriteBuffer failed (1)\n" );
     }
 
-	status = clEnqueueWriteBuffer( cmdQueue, dB, CL_FALSE, 0, dataSize, hB, 0, NULL, NULL );
+	status = clEnqueueWriteBuffer( cmdQueue, dB, CL_FALSE, 0, abSize, hB, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueWriteBuffer failed (2)\n" );
@@ -266,7 +266,7 @@ int main( int argc, char *argv[ ] )
 
 
 	// 12. read the results buffer back from the device to the host:
-	status = clEnqueueReadBuffer( cmdQueue, dC, CL_TRUE, 0, dataSize, hC, 0, NULL, NULL );
+	status = clEnqueueReadBuffer( cmdQueue, dC, CL_TRUE, 0, cSize, hC, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueReadBuffer failed\n" );

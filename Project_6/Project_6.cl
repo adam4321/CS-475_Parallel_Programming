@@ -19,7 +19,7 @@ ArrayMultAdd( global const float *dA, global const float *dB, global float *dC ,
 
 kernel
 void
-ArrayReduce( global const float *dA, global const float *dB, global float *dC )
+ArrayReduce( global const float *dA, global const float *dB, local float *prods, global float *dC )
 {
     int gid = get_global_id( 0 );
     int numItems = get_local_size( 0 ); 

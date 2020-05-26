@@ -28,8 +28,6 @@ OUTPUT_FILE_REDUCE="Project_6_Red_Output.txt"
 # Message to user while results are gathered
 printf "\nGathering the reduction results...\n\n"
 
-
-# GATHER AND OUTPUT ARRAY MULTIPLICATION TO FILE ------------------------------
 # Enter the column values for num trials into the output file
 printf "        1KB\t 4KB\t 32KB\t 256KB\t 1MB\t 2MB\t 4MB\t 8MB\n" >> $OUTPUT_FILE_REDUCE
 
