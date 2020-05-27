@@ -16,7 +16,7 @@
 #endif
 
 #ifndef NUMTRIES
-#define NUMTRIES      100	// Number of iterations
+#define NUMTRIES      30	// Number of iterations
 #endif
 
 #ifndef OUTPUT_FILE
@@ -92,7 +92,12 @@ int main()
     }
 
     // Print GigaMultsPerSecond
-    printf("OMP giga%4.3lf\t", maxGigaMults);
+    printf("OMP giga-ops / sec: %4.3lf\t", maxGigaMults);
+
+    for (int i = 1; i < 513; i++)
+    {
+        fprintf(fp, "%d\t%.2lf\n", i, Sums[i]);
+    }
 
     fclose( fp );
 
