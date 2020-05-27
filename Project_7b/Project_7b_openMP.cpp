@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <math.h>
 
 #ifndef THREAD_COUNT
 #define THREAD_COUNT    1
@@ -59,7 +60,7 @@ int main()
 
     // Set up the data processing
     double maxGigaMults = 0.;
-    FILE *fp = fopen(OUTPUT_FILE, "w");
+    fp = fopen(OUTPUT_FILE, "w");
     omp_set_num_threads(THREAD_COUNT);
 
     // Autocorrelate the supplied signal numtries times 
@@ -80,10 +81,18 @@ int main()
         }
 
         double time1 = omp_get_wtime();
+        double GigaMults = (double)(Size * Size) /(time1-time0)/1000000000.;
+
+        // Prevent infinite values from entering data
+        if (isfinite(GigaMults))
+        {
+            if (GigaMults > maxGigaMults)
+            maxGigaMults = GigaMults;
+        }
     }
 
     // Print GigaMultsPerSecond
-    printf("OMP giga%4.3lf\t", (double)(Size * Size) /(time1-time0)/1000000000.);
+    printf("OMP giga%4.3lf\t", maxGigaMults);
 
     fclose( fp );
 
