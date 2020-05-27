@@ -20,7 +20,7 @@
 #endif
 
 #ifndef OUTPUT_FILE
-#define OUTPUT_FILE     "OMP_1_thread.txt"
+#define OUTPUT_FILE     "SINE_WAVE_OUTPUT.txt"
 #endif
 
 

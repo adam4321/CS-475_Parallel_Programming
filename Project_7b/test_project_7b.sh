@@ -18,47 +18,37 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=wrighada@oregonstate.edu
 
-CPP_FILE="Project_6_reduce.cpp"
-EXECUTABLE="Project_6_reduce"
-OUTPUT_FILE_REDUCE="Project_6_Red_Output.txt"
+OUTPUT_FILE="Project_7_performance.txt"
 
 # Clear the test files
-> $OUTPUT_FILE_REDUCE
+> $OUTPUT_FILE
 
 # Message to user while results are gathered
-printf "\nGathering the reduction results...\n\n"
+printf "\nGathering the parallel comparison results...\n\n"
 
-# Enter the column values for num trials into the output file
-printf "        1KB\t 4KB\t 32KB\t 256KB\t 1MB\t 2MB\t 4MB\t 8MB\n" >> $OUTPUT_FILE_REDUCE
+# Compile and run the 1 thread test
+g++ -o Project_7b_1thread Project_7b_openMp.cpp -O3 -lm -fopenmp
+./Project_7b_1thread >> $OUTPUT_FILE
+printf "\n" >> $OUTPUT_FILE
 
-# Iterate through the number of threads per block
-for t in 32 64 128 256
-do
-    # Set the size of the cude blocks
-    LOCAL_SIZE=$t
+# Compile and run the 4 thread openMP test
+g++ -o Project_7b_4thread Project_7b_openMp.cpp -O3 -lm -fopenmp -D THREAD_COUNT=4
+./Project_7b_4thread >> $OUTPUT_FILE
+printf "\n" >> $OUTPUT_FILE
 
-    # Enter the thread count into the start of each row of the file
-    printf "$LOCAL_SIZE\t" >> $OUTPUT_FILE_REDUCE
+# # Compile and run the openCL version
+# g++ -o Project_7b_openCL Project_7b_openCL.cpp /usr/local/apps/cuda/cuda-10.1/lib64/libOpenCL.so.1.1 -lm -fopenmp
+# ./Project_7b_openCL >> $OUTPUT_FILE
+    
+printf "\n" >> $OUTPUT_FILE
 
-    # Iterate through the number of trials
-    for s in 16 64 512 4096 16384 32768 65536 131072
-    do
-        # Set the number of trials
-        NUM=$s
-
-        # Compile and run with the currently set values and record the results
-        g++ -o $EXECUTABLE $CPP_FILE -D LOCAL_SIZE=$t -D NUM=$s /usr/local/apps/cuda/cuda-10.1/lib64/libOpenCL.so.1.1 -lm -fopenmp
-        ./$EXECUTABLE >> $OUTPUT_FILE_REDUCE
-    done
-    printf "\n" >> $OUTPUT_FILE_REDUCE
-done
 
 # Print a description of the axes to the terminal
-printf "        *******************************************\n"
-printf "        **        CUDA Array Reduction test      **\n"
-printf "        *******************************************\n\n"
+printf "        ***************************************************\n"
+printf "        ** 1 thread vs openMP 6 thread vs SIMD vs openCL **\n"
+printf "        ***************************************************\n\n"
 printf "           NMB(Array Size) vs. GigaMults / sec.\n\n"
 
 # Print the multiplication file contents to the terminal
-cat $OUTPUT_FILE_REDUCE
+cat $OUTPUT_FILE
 printf "\n"
