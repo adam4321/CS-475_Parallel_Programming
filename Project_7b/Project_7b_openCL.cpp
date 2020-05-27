@@ -23,7 +23,7 @@
 #include "cl_platform.h"
 
 #ifndef CL_ARR_FUNC
-#define CL_ARR_FUNC     "ArrayReduce"
+#define CL_ARR_FUNC     "AutoCorrelate"
 #endif
 
 #ifndef NMB

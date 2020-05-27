@@ -6,3 +6,19 @@
 **                uses        
 ******************************************************************************/
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <omp.h>
+
+int main()
+{
+    // Print error message and exit if OpenMP isn't supported
+    #ifndef _OPENMP
+        fprintf(stderr, "No OpenMP support!\n");
+        return 1;
+    #endif
+
+
+
+    return 0;
+}

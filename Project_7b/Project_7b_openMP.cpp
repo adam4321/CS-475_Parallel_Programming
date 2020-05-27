@@ -10,6 +10,14 @@
 #include <stdlib.h>
 #include <omp.h>
 
+#ifndef THREAD_COUNT
+#define THREAD_COUNT    1
+#endif
+
+#ifndef OUTPUT_FILE
+#define OUTPUT_FILE     "OMP_1_thread.txt"
+#endif
+
 
 int main()
 {
@@ -19,6 +27,7 @@ int main()
         return 1;
     #endif
 
+    // Open the data file to retrieve the signal values
     FILE *fp = fopen( "signal.txt", "r" );
 
     if ( fp == NULL )
@@ -27,12 +36,14 @@ int main()
         exit( 1 );
     }
 
+    // The first line of the data file is the line count
     int Size;
     fscanf( fp, "%d", &Size );
 
     float *A =     new float[ 2*Size ];
     float *Sums  = new float[ 1*Size ];
 
+    // Fill A array with the data values twice to simplify wrapping around
     for( int i = 0; i < Size; i++ )
     {
         fscanf( fp, "%f", &A[i] );
@@ -40,6 +51,7 @@ int main()
     }
 
     fclose( fp );
+
 
     // Autocorrelate the supplied signal
     for( int shift = 0; shift < Size; shift++ )
