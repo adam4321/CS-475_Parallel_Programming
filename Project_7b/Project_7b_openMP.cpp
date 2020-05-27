@@ -14,6 +14,10 @@
 #define THREAD_COUNT    1
 #endif
 
+#ifndef NUMTRIES
+#define NUMTRIES      100	// Number of iterations
+#endif
+
 #ifndef OUTPUT_FILE
 #define OUTPUT_FILE     "OMP_1_thread.txt"
 #endif
@@ -53,16 +57,35 @@ int main()
     fclose( fp );
 
 
-    // Autocorrelate the supplied signal
-    for( int shift = 0; shift < Size; shift++ )
+    // Set up the data processing
+    double maxGigaMults = 0.;
+    FILE *fp = fopen(OUTPUT_FILE, "w");
+    omp_set_num_threads(THREAD_COUNT);
+
+    // Autocorrelate the supplied signal numtries times 
+
+    for (int t = 0; t < NUMTRIES; t++)
     {
-        float sum = 0.;
-        for( int i = 0; i < Size; i++ )
+        double time0 = omp_get_wtime();
+
+        #pragma omp parallel for default(none) shared(Size, A, Sums)
+        for( int shift = 0; shift < Size; shift++ )
         {
-            sum += A[i] * A[i + shift];
+            float sum = 0.;
+            for( int i = 0; i < Size; i++ )
+            {
+                sum += A[i] * A[i + shift];
+            }
+            Sums[shift] = sum;	// note the "fix #2" from false sharing if you are using OpenMP
         }
-        Sums[shift] = sum;	// note the "fix #2" from false sharing if you are using OpenMP
+
+        double time1 = omp_get_wtime();
     }
+
+    // Print GigaMultsPerSecond
+    printf("OMP giga%4.3lf\t", (double)(Size * Size) /(time1-time0)/1000000000.);
+
+    fclose( fp );
 
     return 0;
 }
