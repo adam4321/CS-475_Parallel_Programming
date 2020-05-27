@@ -27,27 +27,28 @@ OUTPUT_FILE="Project_7_performance.txt"
 printf "\nGathering the parallel comparison results...\n\n"
 
 # Compile and run the 1 thread test
-g++ -o Project_7b_1thread Project_7b_openMp.cpp -O3 -lm -fopenmp
+g++ -o Project_7b_1thread Project_7b_openMP.cpp -O3 -lm -fopenmp
 ./Project_7b_1thread >> $OUTPUT_FILE
-printf "\n" >> $OUTPUT_FILE
 
 # Compile and run the 4 thread openMP test
-g++ -o Project_7b_4thread Project_7b_openMp.cpp -O3 -lm -fopenmp -D THREAD_COUNT=4
+g++ -o Project_7b_4thread Project_7b_openMP.cpp -O3 -lm -fopenmp -D THREAD_COUNT=4
 ./Project_7b_4thread >> $OUTPUT_FILE
-printf "\n" >> $OUTPUT_FILE
 
-# # Compile and run the openCL version
+# Compile and run the SIMD test
+g++ -o Project_7b_SIMD Project_7b_SIMD.cpp -O3 -lm -fopenmp
+./Project_7b_SIMD >> $OUTPUT_FILE
+
+# # Compile and run the openCL test
 # g++ -o Project_7b_openCL Project_7b_openCL.cpp /usr/local/apps/cuda/cuda-10.1/lib64/libOpenCL.so.1.1 -lm -fopenmp
 # ./Project_7b_openCL >> $OUTPUT_FILE
     
-printf "\n" >> $OUTPUT_FILE
 
 
 # Print a description of the axes to the terminal
 printf "        ***************************************************\n"
 printf "        ** 1 thread vs openMP 6 thread vs SIMD vs openCL **\n"
 printf "        ***************************************************\n\n"
-printf "           NMB(Array Size) vs. GigaMults / sec.\n\n"
+printf "             Parallelism method vs. GigaOPs / sec.\n\n"
 
 # Print the multiplication file contents to the terminal
 cat $OUTPUT_FILE
