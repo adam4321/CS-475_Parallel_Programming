@@ -13,12 +13,16 @@
 #include <omp.h>
 #include <xmmintrin.h>
 
+
+// Setting the number of SIMD parallel floats
 #define SSE_WIDTH		4
 
 // Setting the number of iterations
-#ifndef NUMTRIES
-#define NUMTRIES	100
-#endif
+#define NUMTRIES	    100
+
+#define THREAD_COUNT    4
+
+float SimdMulSum( float *a, float *b, int len );
 
 
 int main()
@@ -57,20 +61,27 @@ int main()
 
     // Set up the data processing
     double maxGigaMults = 0.;
+    omp_set_num_threads(THREAD_COUNT);
+    int NUM_ELEMENTS_PER_CORE = Size / THREAD_COUNT;
     
-    // 
+    // Run NUMTRIES tests and find the max performance
     for (int t = 0; t < NUMTRIES; t++)
     {
         double time0 = omp_get_wtime();
 
         // Double for loop where function call is inner loop
-        for( int shift = 0; shift < Size; shift++ )
+        #pragma omp parallel
         {
-            float sum = 0.;
-            Sums[shift] = SimdMulSum(&A[0], &A[0+shift], Size);
-            Sums[shift] = sum;
-        }
+            int first = omp_get_thread_num() * NUM_ELEMENTS_PER_CORE;
 
+            for( int shift = 0; shift < Size; shift++ )
+            {
+                float sum = 0.;
+                Sums[shift] = SimdMulSum(&A[first], &A[first+shift], NUM_ELEMENTS_PER_CORE);
+                Sums[shift] = sum;
+            }
+        }
+        
         double time1 = omp_get_wtime();
         double GigaMults = (double)(Size * Size) /(time1-time0)/1000000000.;
 
@@ -83,7 +94,7 @@ int main()
     }
 
     // Print GigaMultsPerSecond
-    printf("OMP giga-ops / sec: %4.3lf\t\n", maxGigaMults);
+    printf(" SIMD giga-ops / sec: %4.3lf\t\n", maxGigaMults);
 
     return 0;
 }

@@ -93,7 +93,7 @@ int main()
     }
 
     // Print GigaMultsPerSecond
-    printf("OMP giga-ops / sec: %4.3lf\t\n", maxGigaMults);
+    printf(" OMP giga-ops / sec: %4.3lf\t\n", maxGigaMults);
 
     for (int i = 1; i < 513; i++)
     {

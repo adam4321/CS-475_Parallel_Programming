@@ -38,7 +38,7 @@
 #define NUM_ELEMENTS    NMB * NUM
 
 #ifndef LOCAL_SIZE
-#define	LOCAL_SIZE      64
+#define	LOCAL_SIZE      128
 #endif
 
 #define	NUM_WORK_GROUPS		NUM_ELEMENTS/LOCAL_SIZE
@@ -95,20 +95,36 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "clGetDeviceIDs failed (2)\n" );
     }
 
+    // Open the data file to retrieve the signal values
+    FILE *infile = fopen( "signal.txt", "r" );
 
-	// 2. allocate the host memory buffers:
-	float *hA = new float[ NUM_ELEMENTS ];
-	float *hB = new float[ NUM_ELEMENTS ];
-	float *hC = new float[ NUM_ELEMENTS ];
+    if ( infile == NULL )
+    {
+        fprintf( stderr, "Cannot open file 'signal.txt'\n" );
+        exit( 1 );
+    }
 
-	// fill the host memory buffers:
-	for( int i = 0; i < NUM_ELEMENTS; i++ )
-	{
-		hA[i] = hB[i] = (float) sqrt(  (double)i  );
-	}
+    // The first line of the data file is the line count
+    int Size;
+    fscanf( infile, "%d", &Size );
 
-	size_t abSize = NUM_ELEMENTS * sizeof(float);
-    size_t cSize = NUM_WORK_GROUPS * sizeof(float);
+    // 2. allocate the host memory buffers:
+	float *hA = new float[ 2 * Size ];
+	float *hSums = new float[ Size ];
+
+    // Fill host array A with the data values twice to simplify wrapping around
+    for( int i = 0; i < Size; i++ )
+    {
+        fscanf( infile, "%f", &hA[i] );
+        hA[i+Size] = hA[i];		// duplicate the array
+    }
+
+    fclose( infile );
+
+
+    // Set up the data processing
+    double maxGigaMults = 0.;
+	size_t arr_size = Size * sizeof(float);
 
 
 	// 3. create an opencl context:
@@ -128,33 +144,27 @@ int main( int argc, char *argv[ ] )
 
 
 	// 5. allocate the device memory buffers:
-	cl_mem dA = clCreateBuffer( context, CL_MEM_READ_ONLY,  abSize, NULL, &status );
+	cl_mem dA = clCreateBuffer( context, CL_MEM_READ_ONLY,  2*Size*sizeof(cl_float), NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateBuffer failed (1)\n" );
     }
 
-	cl_mem dB = clCreateBuffer( context, CL_MEM_READ_ONLY,  abSize, NULL, &status );
+	cl_mem dSums = clCreateBuffer( context, CL_MEM_WRITE_ONLY,  Size*sizeof(cl_float), NULL, &status );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clCreateBuffer failed (2)\n" );
     }
 
-	cl_mem dC = clCreateBuffer( context, CL_MEM_WRITE_ONLY, cSize, NULL, &status );
-	if( status != CL_SUCCESS )
-	{
-        fprintf( stderr, "clCreateBuffer failed (3)\n" );
-    }
-
 
 	// 6. enqueue the 2 commands to write the data from the host buffers to the device buffers:
-	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, abSize, hA, 0, NULL, NULL );
+	status = clEnqueueWriteBuffer( cmdQueue, dA, CL_FALSE, 0, 2*Size*sizeof(cl_float), hA, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueWriteBuffer failed (1)\n" );
     }
 
-	status = clEnqueueWriteBuffer( cmdQueue, dB, CL_FALSE, 0, abSize, hB, 0, NULL, NULL );
+	status = clEnqueueWriteBuffer( cmdQueue, dSums, CL_FALSE, 0, Size*sizeof(cl_float), hSums, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueWriteBuffer failed (2)\n" );
@@ -218,33 +228,20 @@ int main( int argc, char *argv[ ] )
         fprintf( stderr, "clSetKernelArg failed (1)\n" );
     }
 
-	status = clSetKernelArg( kernel, 1, sizeof(cl_mem), &dB );
+	status = clSetKernelArg( kernel, 1, sizeof(cl_mem), &dSums );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clSetKernelArg failed (2)\n" );
     }
 
-	status = clSetKernelArg( kernel, 2, LOCAL_SIZE * sizeof(float), NULL );
-	if( status != CL_SUCCESS )
-	{
-        fprintf( stderr, "clSetKernelArg failed (3)\n" );
-    }
-
-    status = clSetKernelArg( kernel, 3, sizeof(cl_mem), &dC );
-	if( status != CL_SUCCESS )
-	{
-        fprintf( stderr, "clSetKernelArg failed (4)\n" );
-    }
-
 
 	// 11. enqueue the kernel object for execution:
-	size_t globalWorkSize[3] = { NUM_ELEMENTS, 1, 1 };
+	size_t globalWorkSize[3] = { Size, 1, 1 };
 	size_t localWorkSize[3]  = { LOCAL_SIZE,   1, 1 };
 
 	Wait( cmdQueue );
 	double time0 = omp_get_wtime( );
 
-	time0 = omp_get_wtime( );
 
 	status = clEnqueueNDRangeKernel( cmdQueue, kernel, 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
@@ -253,44 +250,24 @@ int main( int argc, char *argv[ ] )
     }
 
 	Wait( cmdQueue );
-
-    // Add up the workgroup sums to create the reduction
-    float sum = 0;
-    for (int i = 0; i < NUM_WORK_GROUPS; i++)
-    {
-        sum += hC[i];
-    }
-
 	double time1 = omp_get_wtime( );
 
 
 	// 12. read the results buffer back from the device to the host:
-	status = clEnqueueReadBuffer( cmdQueue, dC, CL_TRUE, 0, cSize, hC, 0, NULL, NULL );
+	status = clEnqueueReadBuffer( cmdQueue, dSums, CL_TRUE, 0, Size, hSums, 0, NULL, NULL );
 	if( status != CL_SUCCESS )
 	{
         fprintf( stderr, "clEnqueueReadBuffer failed\n" );
     }
 
-
-	// did it work?
-	for( int i = 0; i < NUM_ELEMENTS; i++ )
-	{
-		float expected = hA[i] * hB[i];
-		if( fabs( hC[i] - expected ) > TOL )
-		{
-			//fprintf( stderr, "%4d: %13.6f * %13.6f wrongly produced %13.6f instead of %13.6f (%13.8f)\n",
-				//i, hA[i], hB[i], hC[i], expected, fabs(hC[i]-expected) );
-			//fprintf( stderr, "%4d:    0x%08x *    0x%08x wrongly produced    0x%08x instead of    0x%08x\n",
-				//i, LookAtTheBits(hA[i]), LookAtTheBits(hB[i]), LookAtTheBits(hC[i]), LookAtTheBits(expected) );
-		}
-	}
+    Wait( cmdQueue );
 
     // // Testing print statement
 	// fprintf( stdout, "%8d\t%4d\t%10d\t%10.3lf GigaMultsPerSecond\n",
 	// 	NMB, LOCAL_SIZE, NUM_WORK_GROUPS, (double)NUM_ELEMENTS/(time1-time0)/1000000000. );
 
     // Print GigaMultsPerSecond
-    printf("%4.3lf\t", (double)NUM_ELEMENTS/(time1-time0)/1000000000.);
+    printf(" OpenCL Giga-ops / sec: %.2lf\t\n", (double)Size * Size/(time1-time0)/1000000000.);
 
     #ifdef WIN32
         Sleep( 2000 );
@@ -302,12 +279,10 @@ int main( int argc, char *argv[ ] )
 	clReleaseProgram(       program  );
 	clReleaseCommandQueue(  cmdQueue );
 	clReleaseMemObject(     dA  );
-	clReleaseMemObject(     dB  );
-	clReleaseMemObject(     dC  );
+	clReleaseMemObject(     dSums  );
 
 	delete [ ] hA;
-	delete [ ] hB;
-	delete [ ] hC;
+	delete [ ] hSums;
 
 	return 0;
 }
