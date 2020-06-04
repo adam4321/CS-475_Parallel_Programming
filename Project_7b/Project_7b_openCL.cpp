@@ -27,15 +27,7 @@
 #define CL_ARR_FUNC     "AutoCorrelate"
 #endif
 
-#ifndef NMB
-#define	NMB     64
-#endif
-
-#ifndef NUM
-#define NUM     ( 1024 * 1024 )
-#endif
-
-#define NUM_ELEMENTS    NMB * NUM
+#define NUM_ELEMENTS    32768
 
 #ifndef LOCAL_SIZE
 #define	LOCAL_SIZE      128
