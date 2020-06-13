@@ -1,4 +1,4 @@
- OMP giga-ops / sec: 1.143	
- OMP giga-ops / sec: 4.278	
- SIMD giga-ops / sec: 0.000	
- OpenCL Giga-ops / sec: 76.696	
+ OMP giga-ops / sec: 1.142	
+ OMP giga-ops / sec: 4.295	
+ SIMD giga-ops / sec: 10.737	
+ OpenCL Giga-ops / sec: 53.687	

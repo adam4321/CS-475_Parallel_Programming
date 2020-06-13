@@ -35,7 +35,7 @@ g++ -o Project_7b_4thread Project_7b_openMP.cpp -O3 -lm -fopenmp -D THREAD_COUNT
 ./Project_7b_4thread >> $OUTPUT_FILE
 
 # Compile and run the SIMD test
-g++ -o Project_7b_SIMD Project_7b_SIMD.cpp -O3 -lm -fopenmp
+g++ -o Project_7b_SIMD Project_7b_SIMD.cpp -O2 -lm -fopenmp
 ./Project_7b_SIMD >> $OUTPUT_FILE
 
 # Compile and run the openCL test
