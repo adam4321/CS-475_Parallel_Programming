@@ -259,7 +259,7 @@ int main( int argc, char *argv[ ] )
 	// 	NMB, LOCAL_SIZE, NUM_WORK_GROUPS, (double)NUM_ELEMENTS/(time1-time0)/1000000000. );
 
     // Print GigaMultsPerSecond
-    printf(" OpenCL Giga-ops / sec: %.2lf\t\n", (double)Size * Size/(time1-time0)/1000000000.);
+    printf(" OpenCL Giga-ops / sec: %.3lf\t\n", (double)Size * Size/(time1-time0)/1000000000.);
 
     #ifdef WIN32
         Sleep( 2000 );
