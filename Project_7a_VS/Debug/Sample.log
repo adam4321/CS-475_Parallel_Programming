@@ -1,3 +1,0 @@
-﻿  sample.cpp
-sample.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
-  Sample.vcxproj -> D:\code\OSU_code\cs-475\cs-475__VS\Particles2019Template\.\Debug\Sample.exe
