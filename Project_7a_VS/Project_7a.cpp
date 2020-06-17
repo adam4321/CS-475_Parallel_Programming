@@ -1,7 +1,6 @@
 /******************************************************************************
-**  Desctiption:  
-**
-**
+**  Desctiption:  Particle simulation with a mass of particles falling onto a
+**				  pair of spheres.
 ******************************************************************************/
 
 #include <stdio.h>
@@ -66,6 +65,8 @@ const int GLUITRUE  = { true  };
 const int GLUIFALSE = { false };
 
 #define ESCAPE		0x1b
+
+#define FALSE       0
 
 const int INIT_WINDOW_SIZE = { 800 };		// window size in pixels
 
@@ -474,23 +475,23 @@ InitCL( )
 
 	// 3. create an opencl context based on the opengl context:
 
-#ifdef WIN32
-	cl_context_properties props[ ] =
-	{
-		CL_GL_CONTEXT_KHR,		(cl_context_properties) wglGetCurrentContext( ),
-		CL_WGL_HDC_KHR,			(cl_context_properties) wglGetCurrentDC( ),
-		CL_CONTEXT_PLATFORM,	(cl_context_properties) Platform,
-		0
-	};
-#else
-	cl_context_properties props[ ] =
-	{
-		CL_GL_CONTEXT_KHR,		(cl_context_properties) glXGetCurrentContext( ),
-		CL_GLX_DISPLAY_KHR,		(cl_context_properties) glXGetCurrentDisplay( ),
-		CL_CONTEXT_PLATFORM,	(cl_context_properties) Platform,
-		0
-	};
-#endif
+	#ifdef WIN32
+		cl_context_properties props[ ] =
+		{
+			CL_GL_CONTEXT_KHR,		(cl_context_properties) wglGetCurrentContext( ),
+			CL_WGL_HDC_KHR,			(cl_context_properties) wglGetCurrentDC( ),
+			CL_CONTEXT_PLATFORM,	(cl_context_properties) Platform,
+			0
+		};
+	#else
+		cl_context_properties props[ ] =
+		{
+			CL_GL_CONTEXT_KHR,		(cl_context_properties) glXGetCurrentContext( ),
+			CL_GLX_DISPLAY_KHR,		(cl_context_properties) glXGetCurrentDisplay( ),
+			CL_CONTEXT_PLATFORM,	(cl_context_properties) Platform,
+			0
+		};
+	#endif
 
 	cl_context Context = clCreateContext( props, 1, &Device, NULL, NULL, &status );
 	PrintCLError( status, "clCreateContext: " );
