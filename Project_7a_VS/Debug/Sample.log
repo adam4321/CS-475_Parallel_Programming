@@ -1,0 +1,3 @@
+﻿  Project_7a.cpp
+Project_7a.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
+  Sample.vcxproj -> D:\code\OSU_code\cs-475\cs-475__VS\Project_7a\.\Debug\Sample.exe
