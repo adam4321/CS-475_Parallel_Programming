@@ -1,6 +1,7 @@
 /******************************************************************************
 **  Desctiption:  Particle simulation with a mass of particles falling onto a
-**				  pair of spheres.
+**				  pair of spheres. The implementation is only tested and
+**                working on Windows.
 ******************************************************************************/
 
 #include <stdio.h>
@@ -475,7 +476,7 @@ InitCL( )
 
 	// 3. create an opencl context based on the opengl context:
 
-	#ifdef WIN32
+	#ifdef WIN32                            // Windows array
 		cl_context_properties props[ ] =
 		{
 			CL_GL_CONTEXT_KHR,		(cl_context_properties) wglGetCurrentContext( ),
@@ -483,7 +484,7 @@ InitCL( )
 			CL_CONTEXT_PLATFORM,	(cl_context_properties) Platform,
 			0
 		};
-	#else
+	#else                                   // Linux array
 		cl_context_properties props[ ] =
 		{
 			CL_GL_CONTEXT_KHR,		(cl_context_properties) glXGetCurrentContext( ),
